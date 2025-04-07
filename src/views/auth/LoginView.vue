@@ -76,7 +76,10 @@ function togglePasswordVisibility() {
                         <!-- Submit Button -->
                         <v-btn color="light-blue-lighten-3" class="mt-2" type="submit" block>Login</v-btn>
                       </v-form>
+
                     </v-sheet>
+                    <v-divider class="my-5"></v-divider>
+                    <h5>Don't have an account? <RouterLink class="text-primary" to="/register">Click to Register</RouterLink></h5>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -91,7 +94,7 @@ function togglePasswordVisibility() {
 </template>
 
 <style scoped>
-/* Apply Poppins font globally */
+/* Apply Poppins font*/
 body {
   font-family: 'Poppins', sans-serif;
 }
