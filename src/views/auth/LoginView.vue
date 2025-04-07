@@ -89,3 +89,17 @@ function togglePasswordVisibility() {
     </v-app>
   </v-responsive>
 </template>
+
+<style scoped>
+/* Apply Poppins font globally */
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.v-app-bar,
+.v-card,
+.v-card-text,
+.v-btn {
+  font-family: 'Poppins', sans-serif; /* Ensures components use Poppins */
+}
+</style>

@@ -21,6 +21,22 @@ const vuetify = createVuetify({
   },
   components,
   directives,
+  theme: {
+    defaultTheme: 'light',
+    themes: {
+      light: {
+        colors: {},
+        variables: {},
+      },
+    },
+  },
+  defaults: {
+    global: {
+      style: {
+        fontFamily: 'Poppins, sans-serif',
+      },
+    },
+  },
 })
 
 
