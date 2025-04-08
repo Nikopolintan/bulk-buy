@@ -1,11 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-
-const theme = ref('light')
-
-function onClick() {
-  theme.value = theme.value === 'light' ? 'dark' : 'light'
-}
+import AppLayout from '@/components/layout/AppLayout.vue'
 
 // Models
 const username = ref('')
@@ -24,30 +19,33 @@ function togglePasswordVisibility() {
 </script>
 
 <template>
-  <v-responsive class="border rounded">
-    <v-app  :theme="theme">
-      <v-app-bar color="light-blue-lighten-4" class="px-3">
-        <v-spacer></v-spacer>
-
-        <v-btn
-          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          slim
-          @click="onClick"
-        ></v-btn>
-      </v-app-bar>
-
-      <v-main>
-        <v-container>
-          <v-row class="my-auto">
+  <AppLayout>
+    <template #content>
+      <v-row class="my-auto">
             <v-col cols="12" md="6" class="mx-auto">
+
               <v-card
-                class="mx-auto text-center"
-                subtitle="less hassle on bulkbuying"
-                width="400"
+                class="mx-auto text-center border rounded-lg pa-4"
+                width="500"
+                elevation="15"
                 >
-                <template v-slot:title>
-                  <span class="font-weight-black">BULKBUY</span>
-                </template>
+                <v-card-title class="d-flex flex-column align-center">
+                  <v-img src="/images/BULKBUY logo.png" width="150" height="150"></v-img>
+                  <h4 class="font-weight-black">BULKBUY</h4>
+                  <small><i>bajaj and budget</i></small>
+                    <!-- Login Buttons -->
+                      <div class="d-flex justify-center gap-2 mt-5">
+                        <a href="https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&emr=1&followup=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&ifkv=AXH0vVv1aZquQkKy1DvX7LazCQyITaqv1whhreqNO1DziAMumtmDbQiIkIjKri3LtaMcLKfSgMy6&osid=1&passive=1209600&service=mail&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S1259117950%3A1744073433066288"
+                          target="_blank">
+                          <v-img src="/images/googlelogo.png" width="80" height="80" ></v-img>
+                        </a>
+
+                        <a class="mt-3" href="https://web.facebook.com/?_rdc=1&_rdr#" target="_blank">
+                          <v-img src="/images/fblogo.png" width="55" height="55" class="mx-2"></v-img>
+                        </a>
+                      </div>
+                      <small>--------------------- or --------------------</small>
+                </v-card-title>
 
                 <v-card-text class="pt-4">
                   <v-sheet class="mx-auto" width="300">
@@ -84,13 +82,8 @@ function togglePasswordVisibility() {
               </v-card>
             </v-col>
           </v-row>
-        </v-container>
-      </v-main>
-
-      <v-footer color="light-blue-lighten-5" border app> Copyright @2025</v-footer>
-
-    </v-app>
-  </v-responsive>
+    </template>
+  </AppLayout>
 </template>
 
 <style scoped>
