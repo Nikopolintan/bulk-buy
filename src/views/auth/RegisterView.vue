@@ -105,7 +105,7 @@ function togglePasswordVisibility2() {
                   />
 
                   <v-btn color="light-blue-lighten-3" class="mt-2" type="submit" block
-                    >Submit</v-btn
+                    >Register</v-btn
                   >
                 </v-form>
               </v-sheet>
