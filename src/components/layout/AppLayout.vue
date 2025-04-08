@@ -6,17 +6,17 @@ const theme = ref('light')
 function onClick() {
   theme.value = theme.value === 'light' ? 'dark' : 'light'
 }
+
 </script>
 
 <template>
-  <v-responsive class="border rounded" max-height="300">
-    <v-app :theme="theme">
-      <v-app-bar class="px-3">
+  <v-responsive class="border rounded">
+    <v-app  :theme="theme">
+      <v-app-bar color="light-blue-lighten-4" class="px-3">
         <v-spacer></v-spacer>
 
         <v-btn
           :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          text="Toggle Theme"
           slim
           @click="onClick"
         ></v-btn>
@@ -24,9 +24,12 @@ function onClick() {
 
       <v-main>
         <v-container>
-          <h1>Main Content</h1>
+            <slot name="content"></slot>
         </v-container>
       </v-main>
+
+      <v-footer color="light-blue-lighten-5" border app> Copyright @2025</v-footer>
+
     </v-app>
   </v-responsive>
 </template>
