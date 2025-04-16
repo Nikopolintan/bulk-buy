@@ -68,7 +68,7 @@ function togglePasswordVisibility() {
                   ></v-text-field>
 
                   <!-- Submit Button -->
-                  <v-btn color="light-blue-lighten-3" class="mt-2" type="submit" block>Login</v-btn>
+                  <v-btn color="light-blue-lighten-3" class="mt-2" type="submit" block> <RouterLink to="/homepage">Login</RouterLink> </v-btn>
                 </v-form>
               </v-sheet>
               <v-divider class="mt-3"></v-divider>
