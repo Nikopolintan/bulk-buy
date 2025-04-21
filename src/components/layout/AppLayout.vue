@@ -12,25 +12,24 @@ function onClick() {
 <template>
   <v-responsive class="border rounded">
     <v-app  :theme="theme">
-      <v-app-bar color="light-blue-lighten-4" class="px-3">
-        <v-spacer></v-spacer>
 
-        <v-btn
-          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          slim
-          @click="onClick"
-        ></v-btn>
-      </v-app-bar>
 
-      <v-main>
+      <v-main class="bg-img">
         <v-container>
             <slot name="content"></slot>
         </v-container>
       </v-main>
 
-      <v-footer color="light-blue-lighten-5" border app> Copyright @2025</v-footer>
 
     </v-app>
   </v-responsive>
 </template>
 
+<style scoped>
+.bg-img{
+background: url('/images/bg-img.jpeg')no-repeat center center;
+background-size: cover;
+
+}
+
+</style>

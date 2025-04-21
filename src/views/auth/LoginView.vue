@@ -21,7 +21,7 @@ function togglePasswordVisibility() {
   <AppLayout>
     <template #content>
       <v-row class="my-auto">
-        <v-col cols="12" md="6" class="mx-auto">
+        <v-col cols="12" class="mx-auto">
           <v-card class="mx-auto text-center border rounded-lg pa-4" width="400" elevation="15">
             <v-card-title class="d-flex flex-column align-center">
               <v-img src="/images/BULKBUY logo.png" width="120" height="120"></v-img>
@@ -68,7 +68,18 @@ function togglePasswordVisibility() {
                   ></v-text-field>
 
                   <!-- Submit Button -->
-                  <v-btn color="light-blue-lighten-3" class="mt-2" type="submit" block> <RouterLink to="/homepage">Login</RouterLink> </v-btn>
+                  <v-container>
+                    <p class="pb-5git"> LOGIN AS </p>
+                    <v-row justify="center" align="center" no-gutters class="flex-nowrap">
+                      <v-col cols="auto">
+                        <v-btn height="40" min-width="110" class="mx-2"> Customer </v-btn>
+                      </v-col>
+
+                      <v-col cols="auto">
+                        <v-btn height="40" min-width="110" class="mx-2"> Driver </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-container>
                 </v-form>
               </v-sheet>
               <v-divider class="mt-3"></v-divider>
