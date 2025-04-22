@@ -40,7 +40,8 @@ function togglePasswordVisibility() {
                   <v-img src="/images/fblogo.png" width="35" height="35" class="mx-2"></v-img>
                 </a>
               </div>
-              <small>--------------------- or --------------------</small>
+              <small>——————— or ———————
+              </small>
             </v-card-title>
 
             <v-card-text class="pt-2">
@@ -69,7 +70,7 @@ function togglePasswordVisibility() {
 
                   <!-- Submit Button -->
                   <v-container>
-                    <p class="pb-5git"> LOGIN AS </p>
+                    <p class="pb-3"> Login as </p>
                     <v-row justify="center" align="center" no-gutters class="flex-nowrap">
                       <v-col cols="auto">
                         <v-btn height="40" min-width="110" class="mx-2"> Customer </v-btn>

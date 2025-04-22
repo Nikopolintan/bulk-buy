@@ -2,19 +2,13 @@
 import { ref } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 
-// First Name
-const firstName = ref('')
-const firstNameRules = [
-  (v) => !!v || 'First name is required',
+// Full Name
+const fullnametName = ref('')
+const fullnameNameRules = [
+  (v) => !!v || 'Full name is required',
   (v) => v.length >= 3 || 'First name must be at least 3 characters',
 ]
 
-// Last Name
-const lastName = ref('')
-const lastNameRules = [
-  (v) => !!v || 'Last name is required',
-  (v) => v.length >= 2 || 'Last name must be at least 2 characters',
-]
 
 // Email
 const email = ref('')
@@ -71,9 +65,7 @@ function togglePasswordVisibility2() {
             <v-card-text class="pt-2">
               <v-sheet class="mx-auto" width="300">
                 <v-form fast-fail @submit.prevent>
-                  <v-text-field v-model="firstName" :rules="firstNameRules" label="First name" />
-
-                  <v-text-field v-model="lastName" :rules="lastNameRules" label="Last name" />
+                  <v-text-field v-model="fullnametName" :rules="fullnameNameRules" label="Full name" />
 
                   <v-text-field v-model="email" :rules="emailRules" label="Email" type="email" />
 
