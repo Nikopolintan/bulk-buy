@@ -27,7 +27,7 @@ function onClick() {
 
 <style scoped>
 .bg-img{
-background: url('/images/bg-img.jpeg')no-repeat center center;
+background: url('/images/bg-img.png')no-repeat center center;
 background-size: cover;
 
 }
