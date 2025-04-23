@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LandingpageView from '@/views/auth/LandingpageView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
-import HomepageView from '@/views/auth/HomepageView.vue'
+import CustomerHomepageView from '@/views/auth/CustomerHomepageView.vue'
+import DriverHomepageView from '@/views/auth/DriverHomepageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,9 +29,14 @@ const router = createRouter({
       component: RegisterView
     },
     {
-      path: '/homepage',
-      name: 'homepage',
-      component: HomepageView
+      path: '/customerhomepage',
+      name: 'customerhomepage',
+      component: CustomerHomepageView
+    },
+    {
+      path: '/driverhomepage',
+      name: 'driverhomepage',
+      component: DriverHomepageView
     },
 
   ],

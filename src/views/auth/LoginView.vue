@@ -73,11 +73,27 @@ function togglePasswordVisibility() {
                     <p class="pb-3"> Login as </p>
                     <v-row justify="center" align="center" no-gutters class="flex-nowrap">
                       <v-col cols="auto">
-                        <v-btn height="40" min-width="110" class="mx-2"> Customer </v-btn>
+                        <v-btn
+                          height="40"
+                          min-width="110"
+                          class="mx-2"
+                          color="light-blue-lighten-3"
+                          to="/customerhomepage"
+                        >
+                          Customer
+                        </v-btn>
                       </v-col>
 
                       <v-col cols="auto">
-                        <v-btn height="40" min-width="110" class="mx-2"> Driver </v-btn>
+                        <v-btn
+                          height="40"
+                          min-width="110"
+                          class="mx-2"
+                          color="light-blue-lighten-3"
+                          to="/driverhomepage"
+                        >
+                          Driver
+                        </v-btn>
                       </v-col>
                     </v-row>
                   </v-container>
