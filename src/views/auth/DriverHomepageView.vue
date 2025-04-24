@@ -1,15 +1,32 @@
 <script setup>
-  import { ref, computed } from 'vue'
-  import { useOrderStore } from '@/stores/orders'
-const orderStore = useOrderStore()
+import { ref, computed } from 'vue'
+import { useOrderStore } from '@/stores/orders'
+import { useRouter } from 'vue-router'
 
+// Fetching orders from the store (simulated)
+const orderStore = useOrderStore()
 const orders = computed(() => orderStore.orders)
 
+// Drawer state for navigation
+const drawer = ref(false)
 
-  const drawer = ref(null)
+// Use router to navigate to Completed Deliveries page
+const router = useRouter()
 
-// Simulated orders from customers
+// Method to handle Mark as Delivered button click
+function markAsDelivered(orderId) {
+  const orderIndex = orders.value.findIndex(order => order.id === orderId)
+  if (orderIndex !== -1) {
+    const order = orders.value.splice(orderIndex, 1)[0]
+    // Add the completed order to the store or move it to the completed orders list
+    orderStore.addCompletedOrder(order)
+  }
+}
 
+// Navigate to the completed deliveries page
+function goToCompletedDeliveries() {
+  router.push({ name: 'CompletedDeliverypage' })
+}
 </script>
 
 <template>
@@ -55,8 +72,22 @@ const orders = computed(() => orderStore.orders)
           <v-row>
             <v-col cols="12">
               <v-card elevation="3" class="pa-4">
-                <v-card-title class="text-h6 mb-4">Customer Orders</v-card-title>
+                <v-card-title class="d-flex justify-space-between align-center">
+                  <span class="text-h6">Customer Orders</span>
+                  <!-- Completed Deliveries Button in the upper-right corner of the card -->
+                  <v-btn
+                    color="blue"
+                    variant="tonal"
+                    @click="goToCompletedDeliveries"
+                    class="ml-auto"
+                    small
+                  >
+                    <v-icon start>mdi-check-circle-outline</v-icon>
+                    Completed Deliveries
+                  </v-btn>
+                </v-card-title>
 
+                <!-- Loop through orders and display each order -->
                 <v-row v-for="(order, index) in orders" :key="index" class="mb-4">
                   <v-col cols="12">
                     <v-card outlined>
@@ -69,10 +100,7 @@ const orders = computed(() => orderStore.orders)
                       <v-divider></v-divider>
                       <v-card-text>
                         <v-list dense>
-                          <v-list-item
-                            v-for="(item, i) in order.items"
-                            :key="i"
-                          >
+                          <v-list-item v-for="(item, i) in order.items" :key="i">
                             <v-list-item-content>
                               <v-list-item-title>
                                 {{ item.name }} - Qty: {{ item.quantity }} (₱{{ item.price * item.quantity }})
@@ -86,7 +114,10 @@ const orders = computed(() => orderStore.orders)
                       </v-card-text>
                       <v-card-actions>
                         <v-btn color="primary" text>Accept Task</v-btn>
-                        <v-btn color="success" text>Mark as Delivered</v-btn>
+                        <!-- Mark as Delivered Button -->
+                        <v-btn color="success" text @click="markAsDelivered(order.id)">
+                          Mark as Delivered
+                        </v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-col>
@@ -100,5 +131,4 @@ const orders = computed(() => orderStore.orders)
       </v-main>
     </v-layout>
   </v-card>
-
 </template>

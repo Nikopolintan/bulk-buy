@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { useOrderStore } from '@/stores/orders'
 const orderStore = useOrderStore()
 
-
 const drawer = ref(false)
 const showReceiptDialog = ref(false)
 
@@ -37,7 +36,9 @@ function cancelAllOrders() {
   orderedProducts.value = []
 }
 
-const totalPrice = computed(() => orderedProducts.value.reduce((sum, item) => sum + item.price, 0))
+const totalPrice = computed(() =>
+  orderedProducts.value.reduce((sum, item) => sum + item.price, 0)
+)
 
 function placeOrder() {
   if (orderedProducts.value.length === 0) return
@@ -45,16 +46,13 @@ function placeOrder() {
   orderStore.addOrder({
     customer: 'John Doe',
     address: '123 Sample St.',
-    items: [...orderedProducts.value]
+    items: [...orderedProducts.value],
   })
 
   orderedProducts.value = []
   showReceiptDialog.value = false
 }
-
 </script>
-
-
 
 <template>
   <v-card>
@@ -97,6 +95,14 @@ function placeOrder() {
 
         <!-- Main Content -->
         <v-container class="ma-4 mt-8">
+            <!-- ORDER HISTORY BUTTON -->
+            <v-btn
+            class="mx-2 justify-content-end"
+            color="blue-lighten-4"
+            @click="$router.push({ name: 'OrderHistorypage' })"
+          >
+            Order History
+          </v-btn>
           <v-row>
             <!-- Left Column: Order List -->
             <v-col cols="12" md="3">
@@ -116,20 +122,17 @@ function placeOrder() {
                 <v-list dense>
                   <v-list-item v-for="(ordered, index) in orderedProducts" :key="index">
                     <v-row no-gutters align="center" class="w-100">
-                      <!-- Cancel Button -->
                       <v-col cols="2" class="d-flex justify-start">
                         <v-btn icon size="x-small" @click="cancelOrder(ordered.name)">
                           <v-icon color="red" size="18">mdi-close</v-icon>
                         </v-btn>
                       </v-col>
 
-                      <!-- Product Info -->
                       <v-col cols="5">
                         <div class="font-weight-medium">{{ ordered.name }}</div>
                         <div class="text-caption">Qty: {{ ordered.quantity }}</div>
                       </v-col>
 
-                      <!-- Price (label left, value right) -->
                       <v-col cols="4" class="d-flex justify-between">
                         <span class="pe-1">Price:</span>
                         <span class="font-weight-medium">₱{{ ordered.price }}</span>
@@ -142,8 +145,6 @@ function placeOrder() {
                 <v-divider class="my-2"></v-divider>
                 <div class="text-right px-4 pb-2 font-weight-bold">TOTAL: ₱{{ totalPrice }}</div>
 
-                <!-- Receipt Summary Dialog -->
-
                 <v-btn
                   class="ma-2"
                   color="blue-lighten-4 "
@@ -154,6 +155,16 @@ function placeOrder() {
 
                 <v-dialog v-model="showReceiptDialog" max-width="500">
                   <v-card title="Receipt Summary">
+                    <v-btn
+                      icon
+                      class="ml-auto"
+                      color="light-blue-lighten-3"
+                      style="position: absolute; top: 10px; right: 10px;"
+                      @click="showReceiptDialog = false"
+                    >
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+
                     <v-card-text>
                       <v-list dense>
                         <v-list-item v-for="(ordered, index) in orderedProducts" :key="index">
@@ -211,10 +222,9 @@ function placeOrder() {
                       ></v-text-field>
                     </v-card-text>
                     <v-card-actions class="d-flex justify-center">
-                      <!-- Centering the Order button -->
-                      <v-btn color="light-blue-lighten-1" @click="orderProduct(product)"
-                        >Order</v-btn
-                      >
+                      <v-btn color="light-blue-lighten-1" @click="orderProduct(product)">
+                        Order
+                      </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-col>
