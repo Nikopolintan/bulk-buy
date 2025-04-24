@@ -1,9 +1,13 @@
 <script setup>
-  import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useOrderStore } from '@/stores/orders'
+const orderStore = useOrderStore()
 
-  const drawer = ref(null)
 
-  const products = ref([
+const drawer = ref(false)
+const showReceiptDialog = ref(false)
+
+const products = ref([
   { name: 'Rice 25kg', description: 'Premium jasmine rice', price: 1250, quantity: 1 },
   { name: 'Cooking Oil 1L', description: 'Vegetable oil', price: 150, quantity: 1 },
   { name: 'Detergent Powder', description: '2kg stain-fighter', price: 230, quantity: 1 },
@@ -14,32 +18,49 @@
 const orderedProducts = ref([])
 
 function orderProduct(product) {
-  // Check if already ordered
-  const existing = orderedProducts.value.find(p => p.name === product.name)
+  const existing = orderedProducts.value.find((p) => p.name === product.name)
   if (!existing) {
-    orderedProducts.value.push({ ...product })
-    alert(`Ordered ${product.quantity} of ${product.name}`)
+    orderedProducts.value.push({
+      ...product,
+      price: product.price * product.quantity,
+    })
   } else {
     alert(`${product.name} is already in your order list`)
   }
 }
 
 function cancelOrder(productName) {
-  orderedProducts.value = orderedProducts.value.filter(p => p.name !== productName)
+  orderedProducts.value = orderedProducts.value.filter((p) => p.name !== productName)
+}
+
+function cancelAllOrders() {
+  orderedProducts.value = []
+}
+
+const totalPrice = computed(() => orderedProducts.value.reduce((sum, item) => sum + item.price, 0))
+
+function placeOrder() {
+  if (orderedProducts.value.length === 0) return
+
+  orderStore.addOrder({
+    customer: 'John Doe',
+    address: '123 Sample St.',
+    items: [...orderedProducts.value]
+  })
+
+  orderedProducts.value = []
+  showReceiptDialog.value = false
 }
 
 </script>
 
-<template>
-  <v-card > <!-- margin on all sides -->
-    <v-layout>
 
+
+<template>
+  <v-card>
+    <v-layout>
       <!-- Navigation Drawer -->
-      <v-navigation-drawer
-        v-model="drawer"
-        location="right"
-        temporary
-      >
+      <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
         <v-list-item
           prepend-avatar="https://randomuser.me/api/portraits/men/78.jpg"
           title="John Leider"
@@ -53,9 +74,14 @@ function cancelOrder(productName) {
         </v-list>
       </v-navigation-drawer>
 
-      <!-- Header Bar with Icons -->
       <v-main>
-        <v-sheet color="light-blue-lighten-3" height="70" class="d-flex justify-end align-center px-6" elevation="2">
+        <!-- Header -->
+        <v-sheet
+          color="light-blue-lighten-3"
+          height="70"
+          class="d-flex justify-end align-center px-6"
+          elevation="2"
+        >
           <v-btn icon size="x-small" class="mx-2">
             <v-icon>mdi-message-text</v-icon>
           </v-btn>
@@ -68,76 +94,135 @@ function cancelOrder(productName) {
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </v-sheet>
-      </v-main>
 
-    </v-layout>
-      </v-card>
-      <v-container class="ma-4 mt-8">
-        <v-row>
+        <!-- Main Content -->
+        <v-container class="ma-4 mt-8">
+          <v-row>
+            <!-- Left Column: Order List -->
+            <v-col cols="12" md="3">
+              <v-card elevation="3">
+                <v-card-title class="text-h6 text-center bg-light-blue-lighten-4">
+                  My Orders
+                </v-card-title>
+                <v-divider></v-divider>
 
-          <!-- Left Column: Order List -->
-          <v-col cols="12" md="3">
-            <v-card elevation="3">
-              <v-card-title class="text-h6">My Orders</v-card-title>
-              <v-divider></v-divider>
-              <v-list dense>
-                <v-list-item
-                  v-for="(ordered, index) in orderedProducts"
-                  :key="index"
+                <div
+                  v-if="orderedProducts.length === 0"
+                  class="text-center pa-4 grey--text text--darken-1"
                 >
-                  <v-list-item-content>
-                    <v-list-item-title>{{ ordered.name }}</v-list-item-title>
-                    <v-list-item-subtitle>Qty: {{ ordered.quantity }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-btn icon @click="cancelOrder(ordered.name)">
-                    <v-icon color="red">mdi-close</v-icon>
-                  </v-btn>
-                </v-list-item>
-              </v-list>
-              <div v-if="orderedProducts.length === 0" class="text-center pa-4 grey--text text--darken-1">
-                No orders yet
-              </div>
-            </v-card>
-          </v-col>
+                  No orders yet
+                </div>
 
-          <!-- Right Column: Product Grid -->
-          <v-col cols="12" md="9">
-            <v-row justify="center" align="start" class="g-4">
-              <v-col
-                v-for="(product, index) in products"
-                :key="index"
-                cols="12"
-                sm="6"
-                md="4"
-                lg="3"
-                class="d-flex justify-center"
-              >
-                <v-card class="pa-3" elevation="5" style="width: 90%;"> <!-- smaller card -->
-                  <div style="height: 100px; background-color: #f0f0f0;"></div> <!-- slightly shorter image -->
+                <v-list dense>
+                  <v-list-item v-for="(ordered, index) in orderedProducts" :key="index">
+                    <v-row no-gutters align="center" class="w-100">
+                      <!-- Cancel Button -->
+                      <v-col cols="2" class="d-flex justify-start">
+                        <v-btn icon size="x-small" @click="cancelOrder(ordered.name)">
+                          <v-icon color="red" size="18">mdi-close</v-icon>
+                        </v-btn>
+                      </v-col>
 
-                  <v-card-title class="text-h6">{{ product.name }}</v-card-title>
-                  <v-card-subtitle>{{ product.description }}</v-card-subtitle>
-                  <v-card-text>
-                    <div><strong>Price:</strong> ₱{{ product.price }}</div>
-                    <v-text-field
-                      v-model="product.quantity"
-                      type="number"
-                      label="Qty"
-                      min="1"
-                      class="mt-2"
-                      dense
-                      hide-details
-                    ></v-text-field>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-btn color="success" @click="orderProduct(product)">Order</v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-col>
+                      <!-- Product Info -->
+                      <v-col cols="5">
+                        <div class="font-weight-medium">{{ ordered.name }}</div>
+                        <div class="text-caption">Qty: {{ ordered.quantity }}</div>
+                      </v-col>
 
-        </v-row>
-      </v-container>
+                      <!-- Price (label left, value right) -->
+                      <v-col cols="4" class="d-flex justify-between">
+                        <span class="pe-1">Price:</span>
+                        <span class="font-weight-medium">₱{{ ordered.price }}</span>
+                      </v-col>
+                    </v-row>
+                    <hr />
+                  </v-list-item>
+                </v-list>
 
+                <v-divider class="my-2"></v-divider>
+                <div class="text-right px-4 pb-2 font-weight-bold">TOTAL: ₱{{ totalPrice }}</div>
+
+                <!-- Receipt Summary Dialog -->
+
+                <v-btn
+                  class="ma-2"
+                  color="blue-lighten-4 "
+                  text="View Receipt"
+                  variant="flat"
+                  @click="showReceiptDialog = true"
+                ></v-btn>
+
+                <v-dialog v-model="showReceiptDialog" max-width="500">
+                  <v-card title="Receipt Summary">
+                    <v-card-text>
+                      <v-list dense>
+                        <v-list-item v-for="(ordered, index) in orderedProducts" :key="index">
+                          <v-row no-gutters align="center" class="w-100">
+                            <v-col cols="8">
+                              <div class="font-weight-medium">{{ ordered.name }}</div>
+                              <div class="text-caption">Qty: {{ ordered.quantity }}</div>
+                            </v-col>
+                            <v-col cols="4" class="d-flex justify-end">
+                              <span class="font-weight-medium">₱{{ ordered.price }}</span>
+                            </v-col>
+                          </v-row>
+                        </v-list-item>
+                      </v-list>
+                      <v-divider class="my-2"></v-divider>
+                      <div class="font-weight-bold text-right">TOTAL: ₱{{ totalPrice }}</div>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-btn text @click="cancelAllOrders">Cancel All Orders</v-btn>
+                      <v-btn text @click="placeOrder">PLACE ORDER</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-card>
+            </v-col>
+
+            <!-- Right Column: Product Grid -->
+            <v-col cols="12" md="9">
+              <v-row justify="center" align="start" class="g-4">
+                <v-col
+                  v-for="(product, index) in products"
+                  :key="index"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                  lg="3"
+                  class="d-flex justify-center"
+                >
+                  <v-card class="pa-3" elevation="5" style="width: 90%">
+                    <div style="height: 100px; background-color: #f0f0f0"></div>
+
+                    <v-card-title class="text-h6">{{ product.name }}</v-card-title>
+                    <v-card-subtitle>{{ product.description }}</v-card-subtitle>
+                    <v-card-text>
+                      <div><strong>Price:</strong> ₱{{ product.price }}</div>
+                      <v-text-field
+                        v-model="product.quantity"
+                        type="number"
+                        label="Qty"
+                        min="1"
+                        class="mt-2"
+                        dense
+                        hide-details
+                      ></v-text-field>
+                    </v-card-text>
+                    <v-card-actions class="d-flex justify-center">
+                      <!-- Centering the Order button -->
+                      <v-btn color="light-blue-lighten-1" @click="orderProduct(product)"
+                        >Order</v-btn
+                      >
+                    </v-card-actions>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-main>
+    </v-layout>
+  </v-card>
 </template>

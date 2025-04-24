@@ -1,27 +1,14 @@
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
+  import { useOrderStore } from '@/stores/orders'
+const orderStore = useOrderStore()
+
+const orders = computed(() => orderStore.orders)
+
 
   const drawer = ref(null)
 
 // Simulated orders from customers
-const orders = ref([
-  {
-    customer: 'Maria Santos',
-    address: 'Blk 12 Lot 3, Zone 5, Brgy. Mabini',
-    items: [
-      { name: 'Rice 25kg', quantity: 1, price: 1250 },
-      { name: 'Canned Tuna', quantity: 3, price: 45 },
-    ]
-  },
-  {
-    customer: 'Juan Dela Cruz',
-    address: 'Purok 3, Brgy. Maligaya',
-    items: [
-      { name: 'Coffee 3-in-1', quantity: 2, price: 90 },
-      { name: 'Detergent Powder', quantity: 1, price: 230 },
-    ]
-  }
-])
 
 </script>
 
