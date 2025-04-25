@@ -94,18 +94,19 @@ function placeOrder() {
         </v-sheet>
 
         <!-- Main Content -->
-        <v-container class="ma-4 mt-8">
-            <!-- ORDER HISTORY BUTTON -->
-            <v-row justify="end" class="mb-4">
-              <v-col cols="auto">
-                <v-btn
-                  color="blue-lighten-4"
-                  @click="$router.push({ name: 'OrderHistorypage' })"
-                >
-                  Order History
-                </v-btn>
-              </v-col>
-            </v-row>
+        <v-container fluid class="ma-4 mt-8">
+          <!-- ORDER HISTORY BUTTON -->
+          <v-row justify="end" class="mb-4 me-4">
+            <v-col cols="auto">
+              <v-btn
+                color="blue-lighten-4"
+                @click="$router.push({ name: 'OrderHistorypage' })"
+              >
+                Order History
+              </v-btn>
+            </v-col>
+          </v-row>
+
           <v-row>
             <!-- Left Column: Order List -->
             <v-col cols="12" md="3">
@@ -150,7 +151,7 @@ function placeOrder() {
 
                 <v-btn
                   class="ma-2"
-                  color="blue-lighten-4 "
+                  color="blue-lighten-4"
                   text="View Receipt"
                   variant="flat"
                   @click="showReceiptDialog = true"
@@ -197,7 +198,11 @@ function placeOrder() {
 
             <!-- Right Column: Product Grid -->
             <v-col cols="12" md="9">
-              <v-row class="d-flex justify-end align-center px-6">
+              <v-row
+                class="d-flex align-stretch"
+                justify="start"
+                no-gutters
+              >
                 <v-col
                   v-for="(product, index) in products"
                   :key="index"
@@ -205,9 +210,9 @@ function placeOrder() {
                   sm="6"
                   md="4"
                   lg="3"
-                  class="d-flex justify-center"
+                  class="pa-2"
                 >
-                  <v-card class="pa-3" elevation="5" style="width: 100%">
+                  <v-card class="pa-3 h-100 d-flex flex-column justify-space-between" elevation="5">
                     <div style="height: 100px; background-color: #f0f0f0"></div>
 
                     <v-card-title class="text-h6">{{ product.name }}</v-card-title>
