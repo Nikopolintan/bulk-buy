@@ -24,6 +24,13 @@ const phoneRules = [
   (v) => /^\d{11}$/.test(v) || 'Phone number must be 11 digits',
 ]
 
+// Address
+const address = ref('')
+const addressRules = [
+  (v) => !!v || 'Address is required',
+  (v) => v.length >= 5 || 'Address must be at least 5 characters',
+]
+
 // Password
 const password = ref('')
 const passwordRules = [
@@ -76,6 +83,13 @@ function togglePasswordVisibility2() {
                     type="tel"
                     maxlength="11"
                     @input="phone = phone.replace(/\D/g, '')"
+                  />
+
+                  <v-text-field
+                    v-model="address"
+                    :rules="addressRules"
+                    label="Address"
+                    type="text"
                   />
 
                   <v-text-field
