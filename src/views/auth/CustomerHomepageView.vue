@@ -96,13 +96,16 @@ function placeOrder() {
         <!-- Main Content -->
         <v-container class="ma-4 mt-8">
             <!-- ORDER HISTORY BUTTON -->
-            <v-btn
-            class="mx-2 justify-content-end"
-            color="blue-lighten-4"
-            @click="$router.push({ name: 'OrderHistorypage' })"
-          >
-            Order History
-          </v-btn>
+            <v-row justify="end" class="mb-4">
+              <v-col cols="auto">
+                <v-btn
+                  color="blue-lighten-4"
+                  @click="$router.push({ name: 'OrderHistorypage' })"
+                >
+                  Order History
+                </v-btn>
+              </v-col>
+            </v-row>
           <v-row>
             <!-- Left Column: Order List -->
             <v-col cols="12" md="3">
@@ -194,7 +197,7 @@ function placeOrder() {
 
             <!-- Right Column: Product Grid -->
             <v-col cols="12" md="9">
-              <v-row justify="center" align="start" class="g-4">
+              <v-row class="d-flex justify-end align-center px-6">
                 <v-col
                   v-for="(product, index) in products"
                   :key="index"
@@ -204,7 +207,7 @@ function placeOrder() {
                   lg="3"
                   class="d-flex justify-center"
                 >
-                  <v-card class="pa-3" elevation="5" style="width: 90%">
+                  <v-card class="pa-3" elevation="5" style="width: 100%">
                     <div style="height: 100px; background-color: #f0f0f0"></div>
 
                     <v-card-title class="text-h6">{{ product.name }}</v-card-title>
