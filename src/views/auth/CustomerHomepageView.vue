@@ -74,24 +74,27 @@ function placeOrder() {
 
       <v-main>
         <!-- Header -->
-        <v-sheet
-          color="light-blue-lighten-3"
-          height="70"
-          class="d-flex justify-end align-center px-6"
-          elevation="2"
-        >
-          <v-btn icon size="x-small" class="mx-2">
-            <v-icon>mdi-message-text</v-icon>
-          </v-btn>
+          <v-app-bar
+            color="light-blue-lighten-3"
+            flat
+            height="70"
+            elevation="2"
+            app
+          >
+            <v-spacer></v-spacer>
 
-          <v-btn icon size="x-small" class="mx-2">
-            <v-icon>mdi-bell</v-icon>
-          </v-btn>
+            <v-btn icon size="medium" class="mx-5">
+              <v-icon>mdi-message-text</v-icon>
+            </v-btn>
 
-          <v-btn icon size="x-small" class="mx-2" @click.stop="drawer = !drawer">
-            <v-icon>mdi-account</v-icon>
-          </v-btn>
-        </v-sheet>
+            <v-btn icon size="medium" class="mx-5">
+              <v-icon>mdi-bell</v-icon>
+            </v-btn>
+
+            <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
+              <v-icon>mdi-account</v-icon>
+            </v-btn>
+          </v-app-bar>
 
         <!-- Main Content -->
         <v-container fluid class="ma-4 mt-8">
