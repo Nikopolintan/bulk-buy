@@ -34,19 +34,43 @@ function goToCompletedDeliveries() {
     <v-layout>
 
       <!-- Navigation Drawer -->
-      <v-navigation-drawer v-model="drawer" location="right" temporary>
-        <v-list-item
-          prepend-avatar="https://randomuser.me/api/portraits/men/78.jpg"
-          title="Rider Profile"
-        ></v-list-item>
+      <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
+      <!-- User Profile Section -->
+      <v-list-item class="text-center mt-2">
+        <v-avatar>
+          <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
+        </v-avatar>
+        <v-list-item-content>
+          <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <!-- User Information Section -->
+      <v-list nav>
+        <v-list-item>
+          <v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-title><strong>Phone Number:</strong> {{ phone }}</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title>
+        </v-list-item>
 
         <v-divider></v-divider>
 
-        <v-list nav>
-          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
-          <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
-        </v-list>
-      </v-navigation-drawer>
+        <!-- Navigation Links -->
+        <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
+        <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
+        <v-list-item prepend-icon="mdi-cart" title="My Orders" value="orders"></v-list-item>
+        <v-list-item prepend-icon="mdi-cogs" title="Settings" value="settings"></v-list-item>
+        <v-list-item prepend-icon="mdi-logout" title="Log Out" value="logout"></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
       <!-- Header Bar -->
       <v-main>
