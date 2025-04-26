@@ -9,7 +9,6 @@ const fullnameNameRules = [
   (v) => v.length >= 3 || 'First name must be at least 3 characters',
 ]
 
-
 // Email
 const email = ref('')
 const emailRules = [
@@ -45,7 +44,7 @@ const passwordConRules = [
   (v) => v === password.value || 'Passwords do not match',
 ]
 
-// Toggle function
+// Toggle functions
 const showPassword1 = ref(false)
 function togglePasswordVisibility1() {
   showPassword1.value = !showPassword1.value
@@ -60,9 +59,9 @@ function togglePasswordVisibility2() {
 <template>
   <AppLayout>
     <template #content>
-      <v-row class="my-auto">
+      <v-row class="my-auto fill-height">
         <v-col cols="12" md="6" class="mx-auto">
-          <v-card class="mx-auto text-center border rounded-lg pa-4" width="400" elevation="15">
+          <v-card class="mx-auto text-center border rounded-lg pa-4 scrollable-card" width="400" elevation="15">
             <v-card-title class="d-flex flex-column align-center">
               <v-img src="/images/BULKBUY logo.png" width="120" height="120"></v-img>
               <h4 class="font-weight-black">BULKBUY</h4>
@@ -110,9 +109,9 @@ function togglePasswordVisibility2() {
                     @click:append-inner="togglePasswordVisibility2"
                   />
 
-                  <v-btn color="light-blue-lighten-3" class="mt-2" type="submit" block
-                    >Register</v-btn
-                  >
+                  <v-btn color="light-blue-lighten-3" class="mt-2" type="submit" block>
+                    Register
+                  </v-btn>
                 </v-form>
               </v-sheet>
               <v-divider class="mt-3"></v-divider>
@@ -129,7 +128,6 @@ function togglePasswordVisibility2() {
 </template>
 
 <style scoped>
-/* Apply Poppins font */
 body {
   font-family: 'Poppins', sans-serif;
 }
@@ -138,6 +136,12 @@ body {
 .v-card,
 .v-card-text,
 .v-btn {
-  font-family: 'Poppins', sans-serif; /* Ensures components use Poppins */
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Make the card scrollable */
+.scrollable-card {
+  max-height: 90vh;
+  overflow-y: auto;
 }
 </style>
