@@ -5,6 +5,7 @@ import RegisterView from '@/views/auth/RegisterView.vue'
 import CustomerHomepageView from '@/views/auth/CustomerHomepageView.vue'
 import DriverHomepageView from '@/views/auth/DriverHomepageView.vue'
 import CompletedDeliverypageView from '@/views/auth/CompletedDeliverypageView.vue'
+import OrderHistorypageView from '@/views/auth/OrderHistorypageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,12 @@ const router = createRouter({
       name: 'customerhomepage',
       component: CustomerHomepageView
     },
+    {
+      path: '/orderhistorypage',
+      name: 'orderhistorypage',
+      component: OrderHistorypageView
+    },
+
     {
       path: '/driverhomepage',
       name: 'driverhomepage',

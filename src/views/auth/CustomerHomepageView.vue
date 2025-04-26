@@ -90,7 +90,13 @@ function placeOrder() {
         <!-- Navigation Links -->
         <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
-        <v-list-item prepend-icon="mdi-cart" title="My Orders" value="orders"></v-list-item>
+        <v-list-item
+            prepend-icon="mdi-cart"
+          >
+            <RouterLink to="/orderhistorypage" class="text-decoration-none text-black">
+              My Orders
+            </RouterLink>
+          </v-list-item>
         <v-list-item prepend-icon="mdi-cogs" title="Settings" value="settings"></v-list-item>
         <v-list-item prepend-icon="mdi-logout" title="Log Out" value="logout"></v-list-item>
       </v-list>

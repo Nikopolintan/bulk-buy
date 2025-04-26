@@ -1,12 +1,25 @@
 <script setup>
 import { ref } from 'vue'
-import { useOrderStore } from '@/stores/orders'
 
+// Toggle for the drawer
 const drawer = ref(false)
-const orderStore = useOrderStore()
 
-// Assuming orders are stored like this:
-const pastOrders = orderStore.orders
+// Temporary: Mock orders directly from the platform
+const pastOrders = ref([
+  {
+    address: 'Purok 3, Butuan City',
+    items: [
+      { name: 'Bigas', quantity: 2, price: 90 },
+      { name: 'Gulay', quantity: 5, price: 150 },
+    ],
+  },
+  {
+    address: 'Barangay Ampayon',
+    items: [
+      { name: 'Asukal', quantity: 1, price: 60 },
+    ],
+  },
+])
 </script>
 
 <template>
@@ -22,7 +35,7 @@ const pastOrders = orderStore.orders
         <v-divider></v-divider>
 
         <v-list nav>
-          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" @click="$router.push({ name: 'customerhomepage' })"></v-list-item>
+          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" @click="$router.push({ name: 'CustomerHomepage' })"></v-list-item>
           <v-list-item prepend-icon="mdi-history" title="Order History" @click="$router.push({ name: 'OrderHistorypage' })"></v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -30,26 +43,26 @@ const pastOrders = orderStore.orders
       <v-main>
         <!-- Header -->
         <v-app-bar
-            color="light-blue-lighten-3"
-            flat
-            height="70"
-            elevation="2"
-            app
-          >
-            <v-spacer></v-spacer>
+          color="light-blue-lighten-3"
+          flat
+          height="70"
+          elevation="2"
+          app
+        >
+          <v-spacer></v-spacer>
 
-            <v-btn icon size="medium" class="mx-5">
-              <v-icon>mdi-message-text</v-icon>
-            </v-btn>
+          <v-btn icon size="medium" class="mx-5">
+            <v-icon>mdi-message-text</v-icon>
+          </v-btn>
 
-            <v-btn icon size="medium" class="mx-5">
-              <v-icon>mdi-bell</v-icon>
-            </v-btn>
+          <v-btn icon size="medium" class="mx-5">
+            <v-icon>mdi-bell</v-icon>
+          </v-btn>
 
-            <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
-              <v-icon>mdi-account</v-icon>
-            </v-btn>
-          </v-app-bar>
+          <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
+            <v-icon>mdi-account</v-icon>
+          </v-btn>
+        </v-app-bar>
 
         <!-- Order History -->
         <v-container class="mt-6">
@@ -64,28 +77,23 @@ const pastOrders = orderStore.orders
                     No orders found.
                   </div>
 
-                  <v-accordion v-else>
-                    <v-expansion-panels>
-                      <v-expansion-panel v-for="(order, index) in pastOrders" :key="index">
-                        <v-expansion-panel-title>
-                          Order #{{ index + 1 }} — {{ order.customer }} — {{ order.address }}
-                        </v-expansion-panel-title>
-                        <v-expansion-panel-text>
-                          <v-list dense>
-                            <v-list-item
-                              v-for="(item, idx) in order.items"
-                              :key="idx"
-                            >
-                              <v-list-item-content>
-                                <v-list-item-title>{{ item.name }}</v-list-item-title>
-                                <v-list-item-subtitle>Qty: {{ item.quantity }} — ₱{{ item.price }}</v-list-item-subtitle>
-                              </v-list-item-content>
-                            </v-list-item>
-                          </v-list>
-                        </v-expansion-panel-text>
-                      </v-expansion-panel>
-                    </v-expansion-panels>
-                  </v-accordion>
+                  <v-expansion-panels v-else>
+                    <v-expansion-panel v-for="(order, index) in pastOrders" :key="index">
+                      <v-expansion-panel-title>
+                        Order #{{ index + 1 }} — Delivery Address: {{ order.address }}
+                      </v-expansion-panel-title>
+                      <v-expansion-panel-text>
+                        <v-list dense>
+                          <v-list-item v-for="(item, idx) in order.items" :key="idx">
+                            <v-list-item-content>
+                              <v-list-item-title>{{ item.name }}</v-list-item-title>
+                              <v-list-item-subtitle>Qty: {{ item.quantity }} — ₱{{ item.price }}</v-list-item-subtitle>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-list>
+                      </v-expansion-panel-text>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
                 </v-card-text>
               </v-card>
             </v-col>
