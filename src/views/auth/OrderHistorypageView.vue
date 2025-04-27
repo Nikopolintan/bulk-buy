@@ -1,5 +1,8 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 // Toggle for the drawer
 const drawer = ref(false)
@@ -20,6 +23,14 @@ const pastOrders = ref([
     ],
   },
 ])
+const fullName = 'John Doe'
+const email = 'johndoe@example.com'
+const phone = '09123456789'
+const address = '123 Main Street, Cityville'
+
+function goToAbout() {
+  router.push('/about')
+}
 </script>
 
 <template>
@@ -27,16 +38,33 @@ const pastOrders = ref([
     <v-layout>
       <!-- Navigation Drawer -->
       <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
-        <v-list-item
-          prepend-avatar="https://randomuser.me/api/portraits/men/78.jpg"
-          title="John Leider"
-        ></v-list-item>
+        <v-list-item class="text-center mt-2">
+          <v-avatar>
+            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
+          </v-avatar>
+          <v-list-item-content>
+            <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
         <v-divider></v-divider>
 
         <v-list nav>
-          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" @click="$router.push({ name: 'CustomerHomepage' })"></v-list-item>
-          <v-list-item prepend-icon="mdi-history" title="Order History" @click="$router.push({ name: 'OrderHistorypage' })"></v-list-item>
+          <v-list-item><v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title></v-list-item>
+          <v-list-item><v-list-item-title><strong>Phone:</strong> {{ phone }}</v-list-item-title></v-list-item>
+          <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
+
+          <v-divider></v-divider>
+
+          <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
+            <v-list-item-title>About</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-logout" @click="logout">
+            <v-list-item-title>Log Out</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
