@@ -70,6 +70,20 @@ orderedProducts.value = []
 orderDescription.value = ''
 showReceiptDialog.value = false
 
+const now = new Date()
+  const date = now.toLocaleDateString()
+  const time = now.toLocaleTimeString()
+
+  orderStore.addOrder({
+    address: 'Customer Address Here', // get from form or user info
+    items: [
+      { name: 'Bigas', quantity: 2, price: 90 },
+      { name: 'Gulay', quantity: 5, price: 150 },
+    ],
+    date,
+    time
+  })
+
 }
 
 function goToAbout() {
@@ -355,6 +369,7 @@ const address = '123 Main Street, Cityville'
                   dense
                   class="mx-2 mt-2"
                 />
+
                  <v-btn class="ma-2" color="blue-lighten-4" text="View Receipt" variant="flat" @click="showReceiptDialog = true"></v-btn>
 
                   <v-dialog v-model="showReceiptDialog" max-width="400">

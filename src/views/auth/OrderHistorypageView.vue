@@ -1,28 +1,16 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useOrderStore } from '@/stores/orders'  // <-- Import your store
 
 const router = useRouter()
 
 // Toggle for the drawer
 const drawer = ref(false)
 
-// Temporary: Mock orders directly from the platform
-const pastOrders = ref([
-  {
-    address: 'Purok 3, Butuan City',
-    items: [
-      { name: 'Bigas', quantity: 2, price: 90 },
-      { name: 'Gulay', quantity: 5, price: 150 },
-    ],
-  },
-  {
-    address: 'Barangay Ampayon',
-    items: [
-      { name: 'Asukal', quantity: 1, price: 60 },
-    ],
-  },
-])
+// Access the order store
+const orderStore = useOrderStore()
+
 const fullName = 'John Doe'
 const email = 'johndoe@example.com'
 const phone = '09123456789'
@@ -30,6 +18,14 @@ const address = '123 Main Street, Cityville'
 
 function goToAbout() {
   router.push('/about')
+}
+
+function openSettings() {
+  // Settings function (you can implement later)
+}
+
+function logout() {
+  // Logout function (you can implement later)
 }
 </script>
 
@@ -70,13 +66,7 @@ function goToAbout() {
 
       <v-main>
         <!-- Header -->
-        <v-app-bar
-          color="light-blue-lighten-3"
-          flat
-          height="70"
-          elevation="2"
-          app
-        >
+        <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
           <v-spacer></v-spacer>
 
           <v-btn icon size="medium" class="mx-5">
@@ -101,14 +91,16 @@ function goToAbout() {
                 <v-divider></v-divider>
 
                 <v-card-text>
-                  <div v-if="pastOrders.length === 0" class="text-center grey--text">
+                  <div v-if="orderStore.orders.length === 0" class="text-center grey--text">
                     No orders found.
                   </div>
 
                   <v-expansion-panels v-else>
-                    <v-expansion-panel v-for="(order, index) in pastOrders" :key="index">
+                    <v-expansion-panel v-for="(order, index) in orderStore.orders" :key="index">
                       <v-expansion-panel-title>
-                        Order #{{ index + 1 }} — Delivery Address: {{ order.address }}
+                        Order #{{ index + 1 }} — Address: {{ order.address }}
+                        <br/>
+                        <small>{{ order.date }} {{ order.time }}</small>  <!-- show date and time -->
                       </v-expansion-panel-title>
                       <v-expansion-panel-text>
                         <v-list dense>
