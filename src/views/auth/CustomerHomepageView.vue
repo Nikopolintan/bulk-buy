@@ -75,6 +75,54 @@ function openSettings() {
   showSettingsCard.value = true
 }
 
+const showChangePasswordDialog = ref(false)
+const showNotificationPreferencesDialog = ref(false)
+const showAccountPrivacyDialog = ref(false)
+
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmNewPassword = ref('')
+
+const emailNotifications = ref(true)
+const smsNotifications = ref(false)
+const appNotifications = ref(true)
+
+const accountPrivacySetting = ref('public')
+
+function openChangePassword() {
+  showChangePasswordDialog.value = true
+}
+
+function openNotificationPreferences() {
+  showNotificationPreferencesDialog.value = true
+}
+
+function openAccountPrivacy() {
+  showAccountPrivacyDialog.value = true
+}
+
+function saveNewPassword() {
+  if (newPassword.value !== confirmNewPassword.value) {
+    alert('Passwords do not match!')
+    return
+  }
+  // Do save logic here
+  alert('Password updated successfully!')
+  showChangePasswordDialog.value = false
+}
+
+function saveNotificationPreferences() {
+  // Save notification settings logic here
+  alert('Notification preferences saved!')
+  showNotificationPreferencesDialog.value = false
+}
+
+function saveAccountPrivacy() {
+  // Save privacy setting logic here
+  alert('Privacy setting saved!')
+  showAccountPrivacyDialog.value = false
+}
+
 function logout() {
   router.push('/login')
 }
@@ -102,41 +150,32 @@ const address = '123 Main Street, Cityville'
         <v-divider></v-divider>
 
         <v-list nav>
-          <v-list-item>
-            <v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title><strong>Phone Number:</strong> {{ phone }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title>
-          </v-list-item>
+          <v-list-item><v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title></v-list-item>
+          <v-list-item><v-list-item-title><strong>Phone:</strong> {{ phone }}</v-list-item-title></v-list-item>
+          <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
 
           <v-divider></v-divider>
 
           <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
             <v-list-item-title>About</v-list-item-title>
           </v-list-item>
-
           <v-list-item prepend-icon="mdi-cart" @click="router.push('/orderhistorypage')">
             <v-list-item-title>My Orders</v-list-item-title>
           </v-list-item>
-
           <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
             <v-list-item-title>Settings</v-list-item-title>
           </v-list-item>
-
           <v-list-item prepend-icon="mdi-logout" @click="logout">
             <v-list-item-title>Log Out</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
-      <v-main>
+      <v-main class="scrollable-main">
         <div :style="backgroundStyle" class="background-blur-wrapper"></div>
 
         <div class="content-wrapper">
-          <!-- App Bar -->
+          <!-- HEADER -->
           <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
             <v-spacer></v-spacer>
             <v-btn icon size="medium" class="mx-5">
@@ -150,16 +189,22 @@ const address = '123 Main Street, Cityville'
             </v-btn>
           </v-app-bar>
 
-          <!-- Settings Card (overlay style) -->
+          <!-- SETTINGS -->
           <v-dialog v-model="showSettingsCard" max-width="500" persistent>
             <v-card class="pa-4">
               <v-card-title>Settings</v-card-title>
               <v-divider></v-divider>
               <v-card-text>
                 <v-list>
-                  <v-list-item>Change Password</v-list-item>
-                  <v-list-item>Notification Preferences</v-list-item>
-                  <v-list-item>Account Privacy</v-list-item>
+                  <v-list-item @click="openChangePassword">
+                    <v-list-item-title>Change Password</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="openNotificationPreferences">
+                    <v-list-item-title>Notification Preferences</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="openAccountPrivacy">
+                    <v-list-item-title>Account Privacy</v-list-item-title>
+                  </v-list-item>
                 </v-list>
               </v-card-text>
               <v-card-actions>
@@ -169,15 +214,68 @@ const address = '123 Main Street, Cityville'
             </v-card>
           </v-dialog>
 
-          <!-- Main Content -->
-          <v-container fluid class="ma-4 mt-8">
+          <!-- Change Password Dialog -->
+          <v-dialog v-model="showChangePasswordDialog" max-width="500">
+            <v-card class="pa-4">
+              <v-card-title>Change Password</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-text-field v-model="currentPassword" label="Current Password" type="password" />
+                <v-text-field v-model="newPassword" label="New Password" type="password" />
+                <v-text-field v-model="confirmNewPassword" label="Confirm New Password" type="password" />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text color="blue" @click="saveNewPassword">Save</v-btn>
+                <v-btn text @click="showChangePasswordDialog = false">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- Notification Preferences Dialog -->
+          <v-dialog v-model="showNotificationPreferencesDialog" max-width="500">
+            <v-card class="pa-4">
+              <v-card-title>Notification Preferences</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-switch v-model="emailNotifications" label="Email Notifications" />
+                <v-switch v-model="smsNotifications" label="SMS Notifications" />
+                <v-switch v-model="appNotifications" label="App Notifications" />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
+                <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- Account Privacy Dialog -->
+          <v-dialog v-model="showAccountPrivacyDialog" max-width="500">
+            <v-card class="pa-4">
+              <v-card-title>Account Privacy</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-radio-group v-model="accountPrivacySetting">
+                  <v-radio label="Public Profile" value="public"></v-radio>
+                  <v-radio label="Private Profile" value="private"></v-radio>
+                </v-radio-group>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text color="blue" @click="saveAccountPrivacy">Save</v-btn>
+                <v-btn text @click="showAccountPrivacyDialog = false">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- PAGE CONTENT -->
+          <v-container fluid class="page-content">
             <v-row>
-              <!-- Order List -->
+              <!-- ORDER CART -->
               <v-col cols="12" md="3">
                 <v-card elevation="3">
-                  <v-card-title class="text-h6 text-center bg-light-blue-lighten-4">
-                    My Orders
-                  </v-card-title>
+                  <v-card-title class="text-h6 text-center bg-light-blue-lighten-4">My Orders</v-card-title>
                   <v-divider></v-divider>
 
                   <div v-if="orderedProducts.length === 0" class="text-center pa-4 grey--text text--darken-1">
@@ -197,8 +295,7 @@ const address = '123 Main Street, Cityville'
                           <div class="text-caption">Qty: {{ ordered.quantity }}</div>
                         </v-col>
                         <v-col cols="4" class="d-flex justify-between">
-                          <span class="pe-1">Price:</span>
-                          <span class="font-weight-medium">₱{{ ordered.price }}</span>
+                          <span class="pe-1">₱</span><span class="font-weight-medium">{{ ordered.price }}</span>
                         </v-col>
                       </v-row>
                       <hr />
@@ -208,13 +305,7 @@ const address = '123 Main Street, Cityville'
                   <v-divider class="my-2"></v-divider>
                   <div class="text-right px-4 pb-2 font-weight-bold">TOTAL: ₱{{ totalPrice }}</div>
 
-                  <v-btn
-                    class="ma-2"
-                    color="blue-lighten-4"
-                    text="View Receipt"
-                    variant="flat"
-                    @click="showReceiptDialog = true"
-                  ></v-btn>
+                  <v-btn class="ma-2" color="blue-lighten-4" text="View Receipt" variant="flat" @click="showReceiptDialog = true"></v-btn>
 
                   <v-dialog v-model="showReceiptDialog" max-width="500">
                     <v-card title="Receipt Summary">
@@ -255,7 +346,7 @@ const address = '123 Main Street, Cityville'
                 </v-card>
               </v-col>
 
-              <!-- Product Grid -->
+              <!-- PRODUCTS -->
               <v-col cols="12" md="9">
                 <v-row class="d-flex align-stretch" justify="start" no-gutters>
                   <v-col
@@ -269,7 +360,6 @@ const address = '123 Main Street, Cityville'
                   >
                     <v-card class="pa-3 h-100 d-flex flex-column justify-space-between" elevation="5">
                       <div style="height: 100px; background-color: #f0f0f0"></div>
-
                       <v-card-title class="text-h6">{{ product.name }}</v-card-title>
                       <v-card-subtitle>{{ product.description }}</v-card-subtitle>
                       <v-card-text>
@@ -293,6 +383,7 @@ const address = '123 Main Street, Cityville'
                   </v-col>
                 </v-row>
               </v-col>
+
             </v-row>
           </v-container>
         </div>
@@ -301,10 +392,11 @@ const address = '123 Main Street, Cityville'
   </v-card>
 </template>
 
-<style>
+<style scoped>
 html, body, #app {
   height: 100%;
   margin: 0;
+  scroll-behavior: smooth;
 }
 
 .v-application {
@@ -312,7 +404,7 @@ html, body, #app {
 }
 
 .background-blur-wrapper {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -323,5 +415,20 @@ html, body, #app {
 .content-wrapper {
   position: relative;
   z-index: 1;
+  padding-top: 70px;
+  padding-bottom: 32px;
+}
+
+.page-content {
+  padding-top: 16px;
+}
+
+.scrollable-main {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.v-list-item {
+  cursor: pointer;
 }
 </style>
