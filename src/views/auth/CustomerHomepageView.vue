@@ -190,7 +190,7 @@ const address = '123 Main Street, Cityville'
           </v-app-bar>
 
           <!-- SETTINGS -->
-          <v-dialog v-model="showSettingsCard" max-width="500" persistent>
+          <v-dialog v-model="showSettingsCard" max-width="400" persistent>
             <v-card class="pa-4">
               <v-card-title>Settings</v-card-title>
               <v-divider></v-divider>
@@ -215,7 +215,7 @@ const address = '123 Main Street, Cityville'
           </v-dialog>
 
           <!-- Change Password Dialog -->
-          <v-dialog v-model="showChangePasswordDialog" max-width="500">
+          <v-dialog v-model="showChangePasswordDialog" max-width="400">
             <v-card class="pa-4">
               <v-card-title>Change Password</v-card-title>
               <v-divider></v-divider>
