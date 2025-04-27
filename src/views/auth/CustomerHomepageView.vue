@@ -93,9 +93,6 @@ function openChangePassword() {
   showChangePasswordDialog.value = true
 }
 
-function openNotificationPreferences() {
-  showNotificationPreferencesDialog.value = true
-}
 
 function openAccountPrivacy() {
   showAccountPrivacyDialog.value = true
@@ -108,6 +105,10 @@ function saveNewPassword() {
   }
   alert('Password updated successfully!')
   showChangePasswordDialog.value = false
+}
+
+function openNotificationPreferences() {
+  showNotificationPreferencesDialog.value = true
 }
 
 function saveNotificationPreferences() {
@@ -256,21 +257,36 @@ const address = '123 Main Street, Cityville'
 
           <!-- Notification Preferences Dialog -->
           <v-dialog v-model="showNotificationPreferencesDialog" max-width="500">
-            <v-card class="pa-4">
-              <v-card-title>Notification Preferences</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-switch v-model="emailNotifications" label="Email Notifications" />
-                <v-switch v-model="smsNotifications" label="SMS Notifications" />
-                <v-switch v-model="appNotifications" label="App Notifications" />
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
-                <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+              <v-card class="pa-4">
+                <v-card-title>Notification Preferences</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text>
+                  <v-switch
+                    v-model="emailNotifications"
+                    label="Email Notifications"
+                    color="blue"
+                    class="animated-switch"
+                  />
+                  <v-switch
+                    v-model="smsNotifications"
+                    label="SMS Notifications"
+                    color="blue"
+                    class="animated-switch"
+                  />
+                  <v-switch
+                    v-model="appNotifications"
+                    label="App Notifications"
+                    color="blue"
+                    class="animated-switch"
+                  />
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
+                  <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
 
           <!-- Account Privacy Dialog -->
           <v-dialog v-model="showAccountPrivacyDialog" max-width="500">
@@ -452,5 +468,17 @@ html, body, #app {
 
 .v-list-item {
   cursor: pointer;
+}
+
+.animated-switch .v-selection-control__input {
+  transition: all 0.3s ease; /* Smooth transition for the thumb */
+}
+
+.animated-switch .v-switch__thumb {
+  transition: transform 0.3s ease, background-color 0.3s ease; /* Animate thumb movement and color */
+}
+
+.animated-switch .v-switch__track {
+  transition: background-color 0.3s ease; /* Animate track color */
 }
 </style>
