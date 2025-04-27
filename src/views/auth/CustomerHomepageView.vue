@@ -90,83 +90,69 @@ const address = '123 Main Street, Cityville'
     <v-layout class="fill-height">
       <!-- Navigation Drawer -->
       <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
-      <!-- User Profile Section -->
-      <v-list-item class="text-center mt-2">
-        <v-avatar>
-          <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
-        </v-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider></v-divider>
-
-      <!-- User Information Section -->
-      <v-list nav>
-        <v-list-item>
-          <v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title><strong>Phone Number:</strong> {{ phone }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title>
+        <v-list-item class="text-center mt-2">
+          <v-avatar>
+            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
+          </v-avatar>
+          <v-list-item-content>
+            <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
+          </v-list-item-content>
         </v-list-item>
 
         <v-divider></v-divider>
 
-        <!-- Navigation Links -->
-        <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
-          <v-list-item-title>About</v-list-item-title>
-        </v-list-item>
+        <v-list nav>
+          <v-list-item>
+            <v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title><strong>Phone Number:</strong> {{ phone }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title>
+          </v-list-item>
 
-        <v-list-item prepend-icon="mdi-cart" @click="router.push('/orderhistorypage')">
-          <v-list-item-title>My Orders</v-list-item-title>
-        </v-list-item>
+          <v-divider></v-divider>
 
-        <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
-          <v-list-item-title>Settings</v-list-item-title>
-        </v-list-item>
+          <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
+            <v-list-item-title>About</v-list-item-title>
+          </v-list-item>
 
-        <v-list-item prepend-icon="mdi-logout" @click="logout">
-          <v-list-item-title>Log Out</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+          <v-list-item prepend-icon="mdi-cart" @click="router.push('/orderhistorypage')">
+            <v-list-item-title>My Orders</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item prepend-icon="mdi-logout" @click="logout">
+            <v-list-item-title>Log Out</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
 
       <v-main>
-        <!-- Background with blur effect -->
         <div :style="backgroundStyle" class="background-blur-wrapper"></div>
 
-        <!-- Main Content (Inside a wrapper to stay clear of the background blur) -->
         <div class="content-wrapper">
-          <!-- Header -->
-          <v-app-bar
-            color="light-blue-lighten-3"
-            flat
-            height="70"
-            elevation="2"
-            app
-          >
+          <!-- App Bar -->
+          <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
             <v-spacer></v-spacer>
-
             <v-btn icon size="medium" class="mx-5">
               <v-icon>mdi-message-text</v-icon>
             </v-btn>
-
             <v-btn icon size="medium" class="mx-5">
               <v-icon>mdi-bell</v-icon>
             </v-btn>
-
             <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
               <v-icon>mdi-account</v-icon>
             </v-btn>
           </v-app-bar>
 
-          <!-- Settings Card -->
-          <v-container v-if="showSettingsCard" class="d-flex justify-center">
-            <v-card class="pa-4" width="400">
+          <!-- Settings Card (overlay style) -->
+          <v-dialog v-model="showSettingsCard" max-width="500" persistent>
+            <v-card class="pa-4">
               <v-card-title>Settings</v-card-title>
               <v-divider></v-divider>
               <v-card-text>
@@ -181,12 +167,12 @@ const address = '123 Main Street, Cityville'
                 <v-btn color="blue-lighten-1" text @click="showSettingsCard = false">Close</v-btn>
               </v-card-actions>
             </v-card>
-          </v-container>
+          </v-dialog>
 
           <!-- Main Content -->
-          <v-container fluid class="ma-4 mt-8" v-else>
+          <v-container fluid class="ma-4 mt-8">
             <v-row>
-              <!-- Left Column: Order List -->
+              <!-- Order List -->
               <v-col cols="12" md="3">
                 <v-card elevation="3">
                   <v-card-title class="text-h6 text-center bg-light-blue-lighten-4">
@@ -194,10 +180,7 @@ const address = '123 Main Street, Cityville'
                   </v-card-title>
                   <v-divider></v-divider>
 
-                  <div
-                    v-if="orderedProducts.length === 0"
-                    class="text-center pa-4 grey--text text--darken-1"
-                  >
+                  <div v-if="orderedProducts.length === 0" class="text-center pa-4 grey--text text--darken-1">
                     No orders yet
                   </div>
 
@@ -209,12 +192,10 @@ const address = '123 Main Street, Cityville'
                             <v-icon color="red" size="18">mdi-close</v-icon>
                           </v-btn>
                         </v-col>
-
                         <v-col cols="5">
                           <div class="font-weight-medium">{{ ordered.name }}</div>
                           <div class="text-caption">Qty: {{ ordered.quantity }}</div>
                         </v-col>
-
                         <v-col cols="4" class="d-flex justify-between">
                           <span class="pe-1">Price:</span>
                           <span class="font-weight-medium">₱{{ ordered.price }}</span>
@@ -274,7 +255,7 @@ const address = '123 Main Street, Cityville'
                 </v-card>
               </v-col>
 
-              <!-- Right Column: Product Grid -->
+              <!-- Product Grid -->
               <v-col cols="12" md="9">
                 <v-row class="d-flex align-stretch" justify="start" no-gutters>
                   <v-col
