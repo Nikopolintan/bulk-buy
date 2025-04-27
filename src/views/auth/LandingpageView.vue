@@ -7,7 +7,7 @@ const drawer = ref(false)
 <template>
   <v-app>
     <!-- App Bar -->
-    <v-app-bar flat class="px-4 px-md-10 transparent-navbar">
+    <v-app-bar flat class="px-4 px-md-10 transparent-navbar" color="blue-lighten-3">
       <v-img
         src="/images/BULKBUY logo.png"
         alt="BulkBuy Logo"

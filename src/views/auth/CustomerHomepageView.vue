@@ -1,22 +1,24 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import baoBaoBg from '@/assets/images/bao-bao.png'
-
-const backgroundStyle = computed(() => ({
-  backgroundImage: `url(${baoBaoBg})`,
-  backgroundSize: 'cover', // Ensures the background covers the entire area
-  backgroundRepeat: 'no-repeat',
-  backgroundAttachment: 'fixed',
-  filter: 'blur(8px)', // Apply blur effect only to the background
-  backgroundColor: 'rgba(0, 0, 255, 0.1)' // Blue-lighten-5 color
-}))
-
 import { useOrderStore } from '@/stores/orders'
 
+const router = useRouter()
 const orderStore = useOrderStore()
 
 const drawer = ref(false)
 const showReceiptDialog = ref(false)
+const showSettingsCard = ref(false)
+
+const backgroundStyle = computed(() => ({
+  backgroundImage: `url(${baoBaoBg})`,
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
+  backgroundAttachment: 'fixed',
+  filter: 'blur(8px)',
+  backgroundColor: 'rgba(0, 0, 255, 0.1)'
+}))
 
 const products = ref([
   { name: 'Rice 25kg', description: 'Premium jasmine rice', price: 1250, quantity: 1 },
@@ -64,6 +66,23 @@ function placeOrder() {
   orderedProducts.value = []
   showReceiptDialog.value = false
 }
+
+function goToAbout() {
+  router.push('/about')
+}
+
+function openSettings() {
+  showSettingsCard.value = true
+}
+
+function logout() {
+  router.push('/login')
+}
+
+const fullName = 'John Doe'
+const email = 'johndoe@example.com'
+const phone = '09123456789'
+const address = '123 Main Street, Cityville'
 </script>
 
 <template>
@@ -71,44 +90,50 @@ function placeOrder() {
     <v-layout class="fill-height">
       <!-- Navigation Drawer -->
       <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
-        <!-- User Profile Section -->
-        <v-list-item class="text-center mt-2">
-          <v-avatar>
-            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
-          </v-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
-          </v-list-item-content>
+      <!-- User Profile Section -->
+      <v-list-item class="text-center mt-2">
+        <v-avatar>
+          <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
+        </v-avatar>
+        <v-list-item-content>
+          <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <!-- User Information Section -->
+      <v-list nav>
+        <v-list-item>
+          <v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-title><strong>Phone Number:</strong> {{ phone }}</v-list-item-title>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title>
         </v-list-item>
 
         <v-divider></v-divider>
 
-        <!-- User Information Section -->
-        <v-list nav>
-          <v-list-item>
-            <v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title><strong>Phone Number:</strong> {{ phone }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title>
-          </v-list-item>
+        <!-- Navigation Links -->
+        <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
+          <v-list-item-title>About</v-list-item-title>
+        </v-list-item>
 
-          <v-divider></v-divider>
+        <v-list-item prepend-icon="mdi-cart" @click="router.push('/orderhistorypage')">
+          <v-list-item-title>My Orders</v-list-item-title>
+        </v-list-item>
 
-          <!-- Navigation Links -->
-          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
-          <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
-          <v-list-item prepend-icon="mdi-cart">
-            <RouterLink to="/orderhistorypage" class="text-decoration-none text-black">
-              My Orders
-            </RouterLink>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-cogs" title="Settings" value="settings"></v-list-item>
-          <v-list-item prepend-icon="mdi-logout" title="Log Out" value="logout"></v-list-item>
-        </v-list>
-      </v-navigation-drawer>
+        <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
+          <v-list-item-title>Settings</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item prepend-icon="mdi-logout" @click="logout">
+          <v-list-item-title>Log Out</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
       <v-main>
         <!-- Background with blur effect -->
@@ -139,8 +164,27 @@ function placeOrder() {
             </v-btn>
           </v-app-bar>
 
+          <!-- Settings Card -->
+          <v-container v-if="showSettingsCard" class="d-flex justify-center">
+            <v-card class="pa-4" width="400">
+              <v-card-title>Settings</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-list>
+                  <v-list-item>Change Password</v-list-item>
+                  <v-list-item>Notification Preferences</v-list-item>
+                  <v-list-item>Account Privacy</v-list-item>
+                </v-list>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue-lighten-1" text @click="showSettingsCard = false">Close</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-container>
+
           <!-- Main Content -->
-          <v-container fluid class="ma-4 mt-8">
+          <v-container fluid class="ma-4 mt-8" v-else>
             <v-row>
               <!-- Left Column: Order List -->
               <v-col cols="12" md="3">
