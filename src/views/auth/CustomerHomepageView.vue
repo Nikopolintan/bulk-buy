@@ -106,25 +106,33 @@ function saveNewPassword() {
     alert('Passwords do not match!')
     return
   }
-  // Do save logic here
   alert('Password updated successfully!')
   showChangePasswordDialog.value = false
 }
 
 function saveNotificationPreferences() {
-  // Save notification settings logic here
   alert('Notification preferences saved!')
   showNotificationPreferencesDialog.value = false
 }
 
 function saveAccountPrivacy() {
-  // Save privacy setting logic here
   alert('Privacy setting saved!')
   showAccountPrivacyDialog.value = false
 }
 
+const showLogoutDialog = ref(false)  // Initially set to false so it's hidden
+
 function logout() {
-  router.push('/login')
+  showLogoutDialog.value = true // Show the confirmation dialog when logout is clicked
+}
+
+function confirmLogout() {
+  router.push('/login')  // Redirect to login page
+  showLogoutDialog.value = false  // Close the confirmation dialog
+}
+
+function cancelLogout() {
+  showLogoutDialog.value = false  // Close the confirmation dialog without logging out
 }
 
 const fullName = 'John Doe'
@@ -188,6 +196,20 @@ const address = '123 Main Street, Cityville'
               <v-icon>mdi-account</v-icon>
             </v-btn>
           </v-app-bar>
+
+            <!-- LOGOUT CONFIRMATION DIALOG -->
+            <v-dialog v-model="showLogoutDialog" max-width="400" persistent>
+              <v-card class="pa-4">
+                <v-card-title class="text-center">
+                  <v-icon color="red" class="mr-2">mdi-cry</v-icon>
+                  Are you sure you want to log out?
+                </v-card-title>
+                <v-card-actions>
+                  <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
+                  <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
 
           <!-- SETTINGS -->
           <v-dialog v-model="showSettingsCard" max-width="400" persistent>
@@ -307,7 +329,7 @@ const address = '123 Main Street, Cityville'
 
                   <v-btn class="ma-2" color="blue-lighten-4" text="View Receipt" variant="flat" @click="showReceiptDialog = true"></v-btn>
 
-                  <v-dialog v-model="showReceiptDialog" max-width="500">
+                  <v-dialog v-model="showReceiptDialog" max-width="400">
                     <v-card title="Receipt Summary">
                       <v-btn
                         icon
