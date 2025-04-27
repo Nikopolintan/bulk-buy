@@ -196,13 +196,13 @@ const address = '123 Main Street, Cityville'
               <v-divider></v-divider>
               <v-card-text>
                 <v-list>
-                  <v-list-item @click="openChangePassword">
+                  <v-list-item prepend-icon="mdi-lock-reset" @click="openChangePassword">
                     <v-list-item-title>Change Password</v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="openNotificationPreferences">
+                  <v-list-item prepend-icon="mdi-bell-ring" @click="openNotificationPreferences">
                     <v-list-item-title>Notification Preferences</v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="openAccountPrivacy">
+                  <v-list-item prepend-icon="mdi-shield-account" @click="openAccountPrivacy">
                     <v-list-item-title>Account Privacy</v-list-item-title>
                   </v-list-item>
                 </v-list>
