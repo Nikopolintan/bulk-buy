@@ -92,6 +92,11 @@ function goToCompletedDeliveries() {
                       <v-divider></v-divider>
 
                       <v-card-text>
+                        <!-- NEW: Order Description -->
+                        <div class="mb-4">
+                          <strong>Order Description:</strong> {{ order.description }}
+                        </div>
+
                         <v-list dense>
                           <v-list-item v-for="(item, i) in order.items" :key="i">
                             <v-list-item-content>

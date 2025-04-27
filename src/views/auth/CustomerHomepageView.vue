@@ -29,6 +29,8 @@ const products = ref([
 ])
 
 const orderedProducts = ref([])
+const orderDescription = ref('')  // This will store the custom description
+
 
 function orderProduct(product) {
   const existing = orderedProducts.value.find((p) => p.name === product.name)
@@ -58,13 +60,16 @@ function placeOrder() {
   if (orderedProducts.value.length === 0) return
 
   orderStore.addOrder({
-    customer: 'John Doe',
-    address: '123 Sample St.',
-    items: [...orderedProducts.value],
-  })
+  customer: 'John Doe',
+  address: '123 Sample St.',
+  description: orderDescription.value, // add this
+  items: [...orderedProducts.value],
+})
 
-  orderedProducts.value = []
-  showReceiptDialog.value = false
+orderedProducts.value = []
+orderDescription.value = ''
+showReceiptDialog.value = false
+
 }
 
 function goToAbout() {
@@ -342,8 +347,15 @@ const address = '123 Main Street, Cityville'
 
                   <v-divider class="my-2"></v-divider>
                   <div class="text-right px-4 pb-2 font-weight-bold">TOTAL: ₱{{ totalPrice }}</div>
-
-                  <v-btn class="ma-2" color="blue-lighten-4" text="View Receipt" variant="flat" @click="showReceiptDialog = true"></v-btn>
+                  <v-text-field
+                  v-model="orderDescription"
+                  label="Order Description"
+                  placeholder="Add special instruction"
+                  outlined
+                  dense
+                  class="mx-2 mt-2"
+                />
+                 <v-btn class="ma-2" color="blue-lighten-4" text="View Receipt" variant="flat" @click="showReceiptDialog = true"></v-btn>
 
                   <v-dialog v-model="showReceiptDialog" max-width="400">
                     <v-card title="Receipt Summary">
@@ -359,6 +371,10 @@ const address = '123 Main Street, Cityville'
 
                       <v-card-text>
                         <v-list dense>
+                          <div v-if="orderDescription" class="mb-2">
+  <strong>Order Description:</strong> {{ orderDescription }}
+</div>
+
                           <v-list-item v-for="(ordered, index) in orderedProducts" :key="index">
                             <v-row no-gutters align="center" class="w-100">
                               <v-col cols="8">
