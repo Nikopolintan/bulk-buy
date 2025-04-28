@@ -131,6 +131,31 @@ function saveAccountPrivacy() {
   showAccountPrivacyDialog.value = false
 }
 
+// Password
+const password = ref('')
+const passwordRules = [
+  (v) => !!v || 'Password is required',
+  (v) => v.length >= 6 || 'Password must be at least 6 characters',
+]
+
+// Confirm Password
+const passwordCon = ref('')
+const passwordConRules = [
+  (v) => !!v || 'Password confirmation is required',
+  (v) => v === password.value || 'Passwords do not match',
+]
+
+// Toggle functions
+const showPassword1 = ref(false)
+function togglePasswordVisibility1() {
+  showPassword1.value = !showPassword1.value
+}
+
+const showPassword2 = ref(false)
+function togglePasswordVisibility2() {
+  showPassword2.value = !showPassword2.value
+}
+
 const showLogoutDialog = ref(false)  // Initially set to false so it's hidden
 
 function logout() {
@@ -253,8 +278,23 @@ const address = '123 Main Street, Cityville'
               <v-divider></v-divider>
               <v-card-text>
                 <v-text-field v-model="currentPassword" label="Current Password" type="password" />
-                <v-text-field v-model="newPassword" label="New Password" type="password" />
-                <v-text-field v-model="confirmNewPassword" label="Confirm New Password" type="password" />
+                <v-text-field
+                    v-model="password"
+                    :rules="passwordRules"
+                    :type="showPassword1 ? 'text' : 'password'"
+                    label="New Password"
+                    :append-inner-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
+                    @click:append-inner="togglePasswordVisibility1"
+                  />
+
+                  <v-text-field
+                    v-model="passwordCon"
+                    :rules="passwordConRules"
+                    :type="showPassword2 ? 'text' : 'password'"
+                    label="Password Confirmation"
+                    :append-inner-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
+                    @click:append-inner="togglePasswordVisibility2"
+                  />
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
