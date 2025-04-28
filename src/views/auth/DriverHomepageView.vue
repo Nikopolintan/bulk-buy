@@ -21,6 +21,21 @@ function markAsDelivered(orderId) {
 function goToCompletedDeliveries() {
   router.push({ name: 'CompletedDeliverypage' })
 }
+
+const showLogoutDialog = ref(false)  // Initially set to false so it's hidden
+
+function logout() {
+  showLogoutDialog.value = true // Show the confirmation dialog when logout is clicked
+}
+
+function confirmLogout() {
+  router.push('/login')  // Redirect to login page
+  showLogoutDialog.value = false  // Close the confirmation dialog
+}
+
+function cancelLogout() {
+  showLogoutDialog.value = false  // Close the confirmation dialog without logging out
+}
 </script>
 
 <template>
@@ -46,10 +61,15 @@ function goToCompletedDeliveries() {
 
           <v-divider></v-divider>
 
-          <v-list-item prepend-icon="mdi-view-dashboard" title="Home" value="home"></v-list-item>
-          <v-list-item prepend-icon="mdi-forum" title="About" value="about"></v-list-item>
-          <v-list-item prepend-icon="mdi-cogs" title="Settings" value="settings"></v-list-item>
-          <v-list-item prepend-icon="mdi-logout" title="Log Out" value="logout"></v-list-item>
+          <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
+            <v-list-item-title>About</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-logout" @click="logout">
+            <v-list-item-title>Log Out</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
@@ -64,6 +84,19 @@ function goToCompletedDeliveries() {
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </v-app-bar>
+
+        <!-- LOGOUT CONFIRMATION DIALOG -->
+        <v-dialog v-model="showLogoutDialog" persistent>
+              <v-card class="mx-auto">
+                <v-card-title class="text-center">
+                  Are you sure you want to log out?
+                </v-card-title>
+                <v-card-actions>
+                  <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
+                  <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
 
         <!-- Customer Orders -->
         <v-container class="mt-6">

@@ -209,10 +209,9 @@ const address = '123 Main Street, Cityville'
           </v-app-bar>
 
             <!-- LOGOUT CONFIRMATION DIALOG -->
-            <v-dialog v-model="showLogoutDialog" max-width="400" persistent>
-              <v-card class="pa-4">
+        <v-dialog v-model="showLogoutDialog" persistent>
+              <v-card class="mx-auto">
                 <v-card-title class="text-center">
-                  <v-icon color="red" class="mr-2">mdi-cry</v-icon>
                   Are you sure you want to log out?
                 </v-card-title>
                 <v-card-actions>
