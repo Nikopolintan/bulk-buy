@@ -84,6 +84,7 @@ function goToCompletedDeliveries() {
                     <v-card outlined>
                       <v-card-title>
                         <div>
+                          <small>{{ order.date }} {{ order.time }}</small>  <!-- show date and time -->
                           <div><strong>Customer:</strong> {{ order.customer }}</div>
                           <div class="text-caption grey--text">{{ order.address }}</div>
                         </div>

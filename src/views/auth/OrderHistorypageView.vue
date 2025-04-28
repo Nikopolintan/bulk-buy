@@ -98,18 +98,23 @@ function logout() {
                   <v-expansion-panels v-else>
                     <v-expansion-panel v-for="(order, index) in orderStore.orders" :key="index">
                       <v-expansion-panel-title>
-                        Order #{{ index + 1 }} — Address: {{ order.address }}
-                        <br/>
+                        Order #{{ index + 1 }}
+                        <br>
+                        <p class="px-2">DATE:</p>
                         <small>{{ order.date }} {{ order.time }}</small>  <!-- show date and time -->
                       </v-expansion-panel-title>
                       <v-expansion-panel-text>
                         <v-list dense>
+                          <strong>Order Description:</strong> {{ order.description }}
                           <v-list-item v-for="(item, idx) in order.items" :key="idx">
                             <v-list-item-content>
                               <v-list-item-title>{{ item.name }}</v-list-item-title>
                               <v-list-item-subtitle>Qty: {{ item.quantity }} — ₱{{ item.price }}</v-list-item-subtitle>
                             </v-list-item-content>
                           </v-list-item>
+                          <div class="mt-2 text-right font-weight-bold">
+                          Total: ₱{{ order.items.reduce((sum, item) => sum + item.price * item.quantity, 0) }}
+                        </div>
                         </v-list>
                       </v-expansion-panel-text>
                     </v-expansion-panel>

@@ -59,9 +59,13 @@ const totalPrice = computed(() =>
 function placeOrder() {
   if (orderedProducts.value.length === 0) return
 
+  const now = new Date()
+  const date = now.toLocaleDateString()
+  const time = now.toLocaleTimeString()
+
   orderStore.addOrder({
-  customer: 'John Doe',
-  address: '123 Sample St.',
+    date,
+    time,
   description: orderDescription.value, // add this
   items: [...orderedProducts.value],
 })
@@ -70,19 +74,6 @@ orderedProducts.value = []
 orderDescription.value = ''
 showReceiptDialog.value = false
 
-const now = new Date()
-  const date = now.toLocaleDateString()
-  const time = now.toLocaleTimeString()
-
-  orderStore.addOrder({
-    address: 'Customer Address Here', // get from form or user info
-    items: [
-      { name: 'Bigas', quantity: 2, price: 90 },
-      { name: 'Gulay', quantity: 5, price: 150 },
-    ],
-    date,
-    time
-  })
 
 }
 
