@@ -4,6 +4,8 @@ import { useOrderStore } from '@/stores/orders'
 
 const orderStore = useOrderStore()
 const completedOrders = computed(() => orderStore.completedOrders) // Completed orders
+
+
 </script>
 
 <template>

@@ -20,12 +20,95 @@ function goToAbout() {
   router.push('/about')
 }
 
+const showSettingsCard = ref(false)
+
 function openSettings() {
-  // Settings function (you can implement later)
+  showSettingsCard.value = true
 }
 
+const showChangePasswordDialog = ref(false)
+const showNotificationPreferencesDialog = ref(false)
+const showAccountPrivacyDialog = ref(false)
+
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmNewPassword = ref('')
+
+const emailNotifications = ref(true)
+const smsNotifications = ref(false)
+const appNotifications = ref(true)
+
+const accountPrivacySetting = ref('public')
+
+function openChangePassword() {
+  showChangePasswordDialog.value = true
+}
+
+function openAccountPrivacy() {
+  showAccountPrivacyDialog.value = true
+}
+
+function saveNewPassword() {
+  if (newPassword.value !== confirmNewPassword.value) {
+    alert('Passwords do not match!')
+    return
+  }
+  alert('Password updated successfully!')
+  showChangePasswordDialog.value = false
+}
+
+function openNotificationPreferences() {
+  showNotificationPreferencesDialog.value = true
+}
+
+function saveNotificationPreferences() {
+  alert('Notification preferences saved!')
+  showNotificationPreferencesDialog.value = false
+}
+
+function saveAccountPrivacy() {
+  alert('Privacy setting saved!')
+  showAccountPrivacyDialog.value = false
+}
+
+// Password
+const password = ref('')
+const passwordRules = [
+  (v) => !!v || 'Password is required',
+  (v) => v.length >= 6 || 'Password must be at least 6 characters',
+]
+
+// Confirm Password
+const passwordCon = ref('')
+const passwordConRules = [
+  (v) => !!v || 'Password confirmation is required',
+  (v) => v === password.value || 'Passwords do not match',
+]
+
+// Toggle functions
+const showPassword1 = ref(false)
+function togglePasswordVisibility1() {
+  showPassword1.value = !showPassword1.value
+}
+
+const showPassword2 = ref(false)
+function togglePasswordVisibility2() {
+  showPassword2.value = !showPassword2.value
+}
+
+const showLogoutDialog = ref(false) // Initially set to false so it's hidden
+
 function logout() {
-  // Logout function (you can implement later)
+  showLogoutDialog.value = true // Show the confirmation dialog when logout is clicked
+}
+
+function confirmLogout() {
+  router.push('/login') // Redirect to login page
+  showLogoutDialog.value = false // Close the confirmation dialog
+}
+
+function cancelLogout() {
+  showLogoutDialog.value = false // Close the confirmation dialog without logging out
 }
 </script>
 
@@ -77,6 +160,127 @@ function logout() {
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </v-app-bar>
+
+        <!-- LOGOUT CONFIRMATION DIALOG -->
+        <v-dialog v-model="showLogoutDialog" persistent>
+            <v-card class="mx-auto">
+              <v-card-title class="text-center"> Are you sure you want to log out? </v-card-title>
+              <v-card-actions>
+                <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
+                <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- SETTINGS -->
+          <v-dialog v-model="showSettingsCard" max-width="400" persistent>
+            <v-card class="pa-4">
+              <v-card-title>Settings</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-list>
+                  <v-list-item prepend-icon="mdi-lock-reset" @click="openChangePassword">
+                    <v-list-item-title>Change Password</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item prepend-icon="mdi-bell-ring" @click="openNotificationPreferences">
+                    <v-list-item-title>Notification Preferences</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item prepend-icon="mdi-shield-account" @click="openAccountPrivacy">
+                    <v-list-item-title>Account Privacy</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue-lighten-1" text @click="showSettingsCard = false">Close</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- Change Password Dialog -->
+          <v-dialog v-model="showChangePasswordDialog" max-width="400">
+            <v-card class="pa-4">
+              <v-card-title>Change Password</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-text-field v-model="currentPassword" label="Current Password" type="password" />
+                <v-text-field
+                  v-model="password"
+                  :rules="passwordRules"
+                  :type="showPassword1 ? 'text' : 'password'"
+                  label="New Password"
+                  :append-inner-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append-inner="togglePasswordVisibility1"
+                />
+
+                <v-text-field
+                  v-model="passwordCon"
+                  :rules="passwordConRules"
+                  :type="showPassword2 ? 'text' : 'password'"
+                  label="Password Confirmation"
+                  :append-inner-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append-inner="togglePasswordVisibility2"
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text color="blue" @click="saveNewPassword">Save</v-btn>
+                <v-btn text @click="showChangePasswordDialog = false">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- Notification Preferences Dialog -->
+          <v-dialog v-model="showNotificationPreferencesDialog" max-width="500">
+            <v-card class="pa-4">
+              <v-card-title>Notification Preferences</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-switch
+                  v-model="emailNotifications"
+                  label="Email Notifications"
+                  color="blue"
+                  class="animated-switch"
+                />
+                <v-switch
+                  v-model="smsNotifications"
+                  label="SMS Notifications"
+                  color="blue"
+                  class="animated-switch"
+                />
+                <v-switch
+                  v-model="appNotifications"
+                  label="App Notifications"
+                  color="blue"
+                  class="animated-switch"
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
+                <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- Account Privacy Dialog -->
+          <v-dialog v-model="showAccountPrivacyDialog" max-width="500">
+            <v-card class="pa-4">
+              <v-card-title>Account Privacy</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-radio-group v-model="accountPrivacySetting">
+                  <v-radio label="Public Profile" value="public"></v-radio>
+                  <v-radio label="Private Profile" value="private"></v-radio>
+                </v-radio-group>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text color="blue" @click="saveAccountPrivacy">Save</v-btn>
+                <v-btn text @click="showAccountPrivacyDialog = false">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
 
         <!-- Order History -->
         <v-container class="mt-6">
