@@ -158,7 +158,6 @@ function cancelLogout() {
         <!-- App Bar -->
         <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
           <v-spacer></v-spacer>
-          <v-btn icon size="medium" class="mx-5"><v-icon>mdi-message-text</v-icon></v-btn>
           <v-btn icon size="medium" class="mx-5"><v-icon>mdi-bell</v-icon></v-btn>
           <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
             <v-icon>mdi-account</v-icon>
