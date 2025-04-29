@@ -11,15 +11,15 @@ const router = useRouter()
 
 // Marks an order as delivered and moves it to completed orders
 function markAsDelivered(orderId) {
-  const orderIndex = orders.value.findIndex(order => order.id === orderId)
-  if (orderIndex !== -1) {
-    const order = orders.value.splice(orderIndex, 1)[0]
+  const order = orderStore.orders.find(order => order.id === orderId)
+  if (order) {
+    orderStore.removeOrder(orderId)
     orderStore.addCompletedOrder(order)
   }
 }
 
 function goToCompletedDeliveries() {
-  router.push({ name: 'CompletedDeliverypage' })
+  router.push({ name: 'CompletedDeliverypage' }) // make sure the route is registered in router/index.js
 }
 
 
