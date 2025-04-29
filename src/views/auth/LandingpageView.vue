@@ -59,11 +59,11 @@ const drawer = ref(false)
         <v-row class="d-flex align-center">
           <!-- Text Content -->
           <v-col cols="12" md="6">
-            <h1 class="text-h5 text-md-h4 font-weight-bold mb-4 text-blue-lighten-2">
+            <h1 class="hero-heading text-white" >
               BULK BUY is an online platform committed to transforming how Filipinos
               engage in community-based and bulk purchasing.
             </h1>
-            <p class="text-body-1 mb-6">
+            <p class="hero-text text-white mb-6">
               We bridge small businesses and consumers for a smarter, more efficient buying experience.
               With technology-driven solutions, we aim to empower communities and uplift local economies.
             </p>
@@ -122,4 +122,22 @@ const drawer = ref(false)
   padding-bottom: 80px;
   min-height: 100vh;
 }
+
+.hero-heading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8); /* stronger shadow for contrast */
+}
+
+.hero-text{
+  font-weight: bold;
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
 </style>
