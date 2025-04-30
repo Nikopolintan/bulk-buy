@@ -1,25 +1,37 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { requiredValidator, emailValidator } from '@/utils/validators'
 
-const email = ref('')
-const password = ref('')
-const showPassword = ref(false)
-const form = ref(null)
 const router = useRouter()
-
-const emailRules = [(v) => !!v || 'Email is required']
-const passwordRules = [(v) => !!v || 'Password is required']
+const form = ref(null)
+const showPassword = ref(false)
 
 function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
 }
+
+const formDataDefault = {
+  email: '',
+  password: '',
+}
+
+const formData = ref({
+  ...formDataDefault
+})
+
+const onSubmit = () => {
+  //conditions for supabase
+}
+
 
 async function login(role) {
   const isValid = await form.value.validate()
   if (!isValid.valid) {
     return // Don't navigate if not valid
   }
+
+  onSubmit()
 
   if (role === 'customer') {
     router.push('/customerhomepage')
@@ -31,12 +43,11 @@ async function login(role) {
 
 <template>
 
-<v-form ref="form" fast-fail @submit.prevent="login">
+<v-form ref="form" @submit.prevent="login">
                 <!-- Email Field -->
                 <v-text-field
-                  v-model="email"
-                  type="email"
-                  :rules="emailRules"
+                  v-model="formData.email"
+                  :rules="[requiredValidator, emailValidator]"
                   label="Email"
                   prepend-inner-icon="mdi-email"
                   required
@@ -44,11 +55,11 @@ async function login(role) {
 
                 <!-- Password Field -->
                 <v-text-field
-                  v-model="password"
+                  v-model="formData.password"
                   :type="showPassword ? 'text' : 'password'"
                   :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                   @click:append-inner="togglePasswordVisibility"
-                  :rules="passwordRules"
+                  :rules="[requiredValidator]"
                   label="Password"
                   prepend-inner-icon="mdi-lock"
                   required
@@ -63,6 +74,7 @@ async function login(role) {
                         min-width="110"
                         class="mx-2"
                         color="light-blue-lighten-3"
+                        type="submit"
                         @click="login('customer')"
                         block
                       >
@@ -76,6 +88,7 @@ async function login(role) {
                         min-width="110"
                         class="mx-2"
                         color="light-blue-lighten-3"
+                        type="submit"
                         @click="login('driver')"
                       >
                         Driver

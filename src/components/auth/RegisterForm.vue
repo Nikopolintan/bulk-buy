@@ -1,87 +1,78 @@
 <script setup>
 import { ref } from 'vue'
+import { requiredValidator, emailValidator, passwordValidator, confirmedValidator } from '@/utils/validators'
+import { supabase, formActionDefault } from '@/utils/supabase.js'
 
-// Full Name
-const fullnametName = ref('')
-const fullnameNameRules = [
-  (v) => !!v || 'Full name is required',
-  (v) => v.length >= 3 || 'First name must be at least 3 characters',
-]
+const refVForm = ref()
 
-// Email
-const email = ref('')
-const emailRules = [
-  (v) => !!v || 'Email is required',
-  (v) => /^\S+@\S+\.\S+$/.test(v) || 'Email must be valid',
-]
+const formDataDefault = {
+  full_name: '',
+  email: '',
+  phone_num: '',
+  address: '',
+  password: '',
+  password_confirmation: '',
+}
 
-// Phone Number
-const phone = ref('')
-const phoneRules = [
-  (v) => !!v || 'Phone number is required',
-  (v) => /^\d{11}$/.test(v) || 'Phone number must be 11 digits',
-]
+const formData = ref({
+  ...formDataDefault
+})
 
-// Address
-const address = ref('')
-const addressRules = [
-  (v) => !!v || 'Address is required',
-  (v) => v.length >= 5 || 'Address must be at least 5 characters',
-]
+const onSubmit = () => {
+ //conditions for supabase
+//  alert(formData.value.email)
+}
 
-// Password
-const password = ref('')
-const passwordRules = [
-  (v) => !!v || 'Password is required',
-  (v) => v.length >= 6 || 'Password must be at least 6 characters',
-]
-
-// Confirm Password
-const passwordCon = ref('')
-const passwordConRules = [
-  (v) => !!v || 'Password confirmation is required',
-  (v) => v === password.value || 'Passwords do not match',
-]
+const onFormSubmit = () => {
+  refVForm.value?.validate().then(({ valid }) => {
+    if (valid) onSubmit()
+  })
+}
 
 // Toggle functions
 const showPassword1 = ref(false)
+const showPassword2 = ref(false)
+
 function togglePasswordVisibility1() {
   showPassword1.value = !showPassword1.value
 }
-
-const showPassword2 = ref(false)
 function togglePasswordVisibility2() {
   showPassword2.value = !showPassword2.value
 }
+
+const phoneRules = [
+  (v) => !!v || 'Phone number is required',
+  (v) => /^09\d{9}$/.test(v) || 'Enter a valid Philippine phone number (e.g., 09123456789)'
+]
 </script>
 
 
 <template>
 
-<v-form fast-fail @submit.prevent>
-                  <v-text-field v-model="fullnametName" :rules="fullnameNameRules" label="Full name" />
+<v-form ref="refVForm" @submit.prevent="onFormSubmit">
+                  <v-text-field v-model="formData.full_name" :rules="[requiredValidator]" label="Full name" />
 
-                  <v-text-field v-model="email" :rules="emailRules" label="Email" type="email" />
+                  <v-text-field v-model="formData.email" :rules="[requiredValidator, emailValidator]" label="Email" type="email" />
 
                   <v-text-field
-                    v-model="phone"
+                    v-model="formData.phone_num"
                     :rules="phoneRules"
                     label="Phone Number"
                     type="tel"
                     maxlength="11"
-                    @input="phone = phone.replace(/\D/g, '')"
+                    @input="formData.phone_num = formData.phone_num.replace(/\D/g, '')"
                   />
 
                   <v-text-field
-                    v-model="address"
-                    :rules="addressRules"
+                    v-model="formData.address"
+                    :rules="[requiredValidator]"
                     label="Address"
                     type="text"
                   />
 
                   <v-text-field
-                    v-model="password"
-                    :rules="passwordRules"
+                    v-model="formData.password"
+                    :rules="[requiredValidator, passwordValidator]"
                     :type="showPassword1 ? 'text' : 'password'"
                     label="Password"
                     :append-inner-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -89,8 +80,8 @@ function togglePasswordVisibility2() {
                   />
 
                   <v-text-field
-                    v-model="passwordCon"
-                    :rules="passwordConRules"
+                    v-model="formData.password_confirmation"
+                    :rules="[requiredValidator, confirmedValidator(formData.password_confirmation, formData.password)]"
                     :type="showPassword2 ? 'text' : 'password'"
                     label="Password Confirmation"
                     :append-inner-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
