@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { requiredValidator, emailValidator } from '@/utils/validators'
+import { supabase, formActionDefault } from '@/utils/supabase.js'
 
 const router = useRouter()
 const form = ref(null)
@@ -20,28 +21,70 @@ const formData = ref({
   ...formDataDefault
 })
 
-const onSubmit = () => {
-  //conditions for supabase
-}
+const formAction = ref({ ...formActionDefault })
 
+const onSubmit = async (role) => {
+  formAction.value = { ...formActionDefault }
+  formAction.value.formProcess = true
 
-async function login(role) {
-  const isValid = await form.value.validate()
-  if (!isValid.valid) {
-    return // Don't navigate if not valid
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: formData.value.email,
+    password: formData.value.password,
+  })
+
+  if (error) {
+    formAction.value.formErrorMessage = error.message
+    formAction.value.formProcess = false
+    return
   }
 
-  onSubmit()
+  const userRole = data.user.user_metadata?.role
+  if (userRole !== role) {
+    formAction.value.formErrorMessage = `You are not registered as a ${role.toUpperCase()}`
+    formAction.value.formProcess = false
+    return
+  }
+
+  formAction.value.formSuccessMessage = `Welcome ${role}!`
+  formAction.value.formProcess = false
 
   if (role === 'customer') {
     router.push('/customerhomepage')
-  } else if (role === 'driver') {
+  } else {
     router.push('/driverhomepage')
   }
 }
+
+function login(role) {
+  form.value.validate().then(({ valid }) => {
+    if (!valid) return
+    onSubmit(role)
+  })
+}
+
 </script>
 
 <template>
+
+<v-alert
+  v-if="formAction.formSuccessMessage"
+  :text="formAction.formSuccessMessage"
+  title="Success!"
+  type="success"
+  variant="tonal"
+  class="mb-2"
+  closable
+/>
+
+<v-alert
+  v-if="formAction.formErrorMessage"
+  :text="formAction.formErrorMessage"
+  title="Oops!"
+  type="error"
+  variant="tonal"
+  class="mb-2"
+  closable
+/>
 
 <v-form ref="form" @submit.prevent="login">
                 <!-- Email Field -->
