@@ -55,9 +55,8 @@ const onSubmit = async () => {
     console.log(data)
     formAction.value.formSuccessMessage = 'Successfully Registered'
     // you can add here more action if you want
-    refVForm.value?.reset()
   }
-
+  refVForm.value?.reset()
   formAction.value.formProcess = false
 }
 
@@ -139,7 +138,7 @@ const phoneRules = [
 
     <v-select
       v-model="formData.role"
-      :items="['customer', 'driver']"
+      :items="['Customer', 'Driver']"
       label="Register as"
       :rules="[requiredValidator]"
       item-title="Role"

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase'
 import baoBaoBg from '/images/bao-bao.png'
 import { useOrderStore } from '@/stores/orders'
 
@@ -19,6 +20,30 @@ const backgroundStyle = computed(() => ({
   filter: 'blur(8px)',
   backgroundColor: 'rgba(0, 0, 255, 0.1)'
 }))
+
+// ========== User Profile Info ==========
+const fullName = ref('')
+const email = ref('')
+const phone = ref('')
+const address = ref('')
+
+async function fetchUserInfo() {
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error) {
+    console.error('Error fetching user:', error.message)
+    return
+  }
+
+  const metadata = user?.user_metadata
+  fullName.value = metadata?.full_name || 'Driver'
+  email.value = user?.email || 'N/A'
+  phone.value = metadata?.phone_num || 'N/A'
+  address.value = metadata?.address || 'N/A'
+}
+
+onMounted(() => {
+  fetchUserInfo()
+})
 
 const products = ref([
   { name: 'Rice 25kg', description: 'Premium jasmine rice', price: 1250, quantity: 1 },
@@ -136,10 +161,6 @@ function cancelLogout() {
   showLogoutDialog.value = false  // Close the confirmation dialog without logging out
 }
 
-const fullName = 'John Doe'
-const email = 'johndoe@example.com'
-const phone = '09123456789'
-const address = '123 Main Street, Cityville'
 </script>
 
 <template>

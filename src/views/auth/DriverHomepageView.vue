@@ -1,15 +1,39 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useOrderStore } from '@/stores/orders'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase' // Adjust if your Supabase client path differs
 
+const router = useRouter()
+const drawer = ref(false)
 const orderStore = useOrderStore()
 const orders = computed(() => orderStore.orders)
 
-const drawer = ref(false)
-const router = useRouter()
+// ========== User Profile Info ==========
+const fullName = ref('')
+const email = ref('')
+const phone = ref('')
+const address = ref('')
 
-// Marks an order as delivered and moves it to completed orders
+async function fetchUserInfo() {
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error) {
+    console.error('Error fetching user:', error.message)
+    return
+  }
+
+  const metadata = user?.user_metadata
+  fullName.value = metadata?.full_name || 'Driver'
+  email.value = user?.email || 'N/A'
+  phone.value = metadata?.phone_num || 'N/A'
+  address.value = metadata?.address || 'N/A'
+}
+
+onMounted(() => {
+  fetchUserInfo()
+})
+
+// ========== Order Actions ==========
 function markAsDelivered(orderId) {
   const order = orderStore.orders.find(order => order.id === orderId)
   if (order) {
@@ -19,14 +43,12 @@ function markAsDelivered(orderId) {
 }
 
 function goToCompletedDeliveries() {
-  router.push({ name: 'CompletedDeliverypage' }) // make sure the route is registered in router/index.js
+  router.push({ name: 'CompletedDeliverypage' })
 }
 
-
-
-// PROFILE SETTINGS//
+// ========== Profile Settings ==========
 const showSettingsCard = ref(false)
-const showLogoutDialog = ref(false)  // Initially set to false so it's hidden
+const showLogoutDialog = ref(false)
 
 function openSettings() {
   showSettingsCard.value = true
@@ -49,7 +71,6 @@ const accountPrivacySetting = ref('public')
 function openChangePassword() {
   showChangePasswordDialog.value = true
 }
-
 
 function openAccountPrivacy() {
   showAccountPrivacyDialog.value = true
@@ -78,21 +99,19 @@ function saveAccountPrivacy() {
   showAccountPrivacyDialog.value = false
 }
 
-// Password
+// ========== Password Validation ==========
 const password = ref('')
 const passwordRules = [
-  (v) => !!v || 'Password is required',
-  (v) => v.length >= 6 || 'Password must be at least 6 characters',
+  v => !!v || 'Password is required',
+  v => v.length >= 6 || 'Password must be at least 6 characters',
 ]
 
-// Confirm Password
 const passwordCon = ref('')
 const passwordConRules = [
-  (v) => !!v || 'Password confirmation is required',
-  (v) => v === password.value || 'Passwords do not match',
+  v => !!v || 'Password confirmation is required',
+  v => v === password.value || 'Passwords do not match',
 ]
 
-// Toggle functions
 const showPassword1 = ref(false)
 function togglePasswordVisibility1() {
   showPassword1.value = !showPassword1.value
@@ -103,19 +122,19 @@ function togglePasswordVisibility2() {
   showPassword2.value = !showPassword2.value
 }
 
+// ========== Logout ==========
 function logout() {
-  showLogoutDialog.value = true // Show the confirmation dialog when logout is clicked
+  showLogoutDialog.value = true
 }
 
 function confirmLogout() {
-  router.push('/login')  // Redirect to login page
-  showLogoutDialog.value = false  // Close the confirmation dialog
+  router.push('/login')
+  showLogoutDialog.value = false
 }
 
 function cancelLogout() {
-  showLogoutDialog.value = false  // Close the confirmation dialog without logging out
+  showLogoutDialog.value = false
 }
-// CLOSED PROFILE SETTINGS//
 </script>
 
 <template>
