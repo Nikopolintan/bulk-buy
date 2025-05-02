@@ -66,12 +66,13 @@ const scrollToAbout = () => {
         <v-row class="d-flex align-center">
           <v-col cols="12" md="6">
             <h1 class="hero-heading text-white mb-4">
-              BULK BUY is an online platform committed to transforming how Filipinos
-              engage in community-based and bulk purchasing.
+              BULK BUY is an online platform committed to transforming how Filipinos engage in
+              community-based and bulk purchasing.
             </h1>
             <p class="hero-text text-white mb-6">
-              We bridge small businesses and consumers for a smarter, more efficient buying experience.
-              With technology-driven solutions, we aim to empower communities and uplift local economies.
+              We bridge small businesses and consumers for a smarter, more efficient buying
+              experience. With technology-driven solutions, we aim to empower communities and uplift
+              local economies.
             </p>
             <div class="d-flex flex-wrap gap-4">
               <v-img
@@ -95,14 +96,28 @@ const scrollToAbout = () => {
       </v-container>
 
       <!-- About Us Section -->
-      <v-container id="about" fluid class="about-section">
-        <v-row class="justify-center">
-          <v-col cols="12" md="8" class="text-center">
+      <v-container id="about" fluid class="about-section py-12" style="background-color: #e3f2fd">
+        <v-row align="center" justify="center">
+          <v-col cols="12" md="5">
+            <v-img
+              src="/images/bao-bao.png"
+              alt="Delivery Tricab"
+              max-width="100%"
+              contain
+              class="rounded-lg elevation-3"
+            />
+          </v-col>
+          <v-col cols="12" md="5">
             <h2 class="text-h5 text-md-h4 font-weight-bold mb-4">About Us</h2>
+            <p class="text-body-1 mb-4">
+              BULK BUY is committed to transforming how Filipinos engage in community-based and bulk
+              purchasing. We bridge small businesses and consumers for a smarter, more efficient
+              buying experience. With technology-driven solutions, we aim to empower communities and
+              uplift local economies.
+            </p>
             <p class="text-body-1">
-              BULK BUY is committed to transforming how Filipinos engage in community-based and bulk purchasing.
-              We bridge small businesses and consumers for a smarter, more efficient buying experience.
-              With technology-driven solutions, we aim to empower communities and uplift local economies.
+              We also provide fast delivery of essential goods like rice, milk, shampoo, and
+              more—redefining convenience for every Filipino home.
             </p>
           </v-col>
         </v-row>
@@ -124,7 +139,7 @@ const scrollToAbout = () => {
   background-repeat: no-repeat;
   padding-top: 120px;
   padding-bottom: 80px;
-  min-height: 100vh;
+  min-height: 30vh;
 }
 
 .hero-heading {
