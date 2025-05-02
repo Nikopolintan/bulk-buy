@@ -17,7 +17,6 @@ const backgroundStyle = computed(() => ({
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
   backgroundAttachment: 'fixed',
-  filter: 'blur(8px)',
   backgroundColor: 'rgba(0, 0, 255, 0.1)'
 }))
 
@@ -79,12 +78,12 @@ const totalPrice = computed(() =>
   orderedProducts.value.reduce((sum, item) => sum + item.price, 0)
 )
 
-function placeOrder() {
+function bookOrder() {
   if (orderedProducts.value.length === 0) return
 
   orderStore.addOrder({
-    customer: 'John Doe',
-    address: '123 Sample St.',
+    customer: '',
+    address: '',
     items: [...orderedProducts.value],
   })
 
@@ -201,9 +200,6 @@ function cancelLogout() {
           <!-- HEADER -->
           <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
             <v-spacer></v-spacer>
-            <v-btn icon size="medium" class="mx-5">
-              <v-icon>mdi-message-text</v-icon>
-            </v-btn>
             <v-btn icon size="medium" class="mx-5">
               <v-icon>mdi-bell</v-icon>
             </v-btn>
@@ -357,10 +353,10 @@ function cancelLogout() {
                   <v-divider class="my-2"></v-divider>
                   <div class="text-right px-4 pb-2 font-weight-bold">TOTAL: ₱{{ totalPrice }}</div>
 
-                  <v-btn class="ma-2" color="blue-lighten-4" text="View Receipt" variant="flat" @click="showReceiptDialog = true"></v-btn>
+                  <v-btn class="ma-2" color="blue-lighten-4" text="CHECK OUT" variant="flat" @click="showReceiptDialog = true"></v-btn>
 
                   <v-dialog v-model="showReceiptDialog" max-width="400">
-                    <v-card title="Receipt Summary">
+                    <v-card title="Order Summary">
                       <v-btn
                         icon
                         class="ml-auto"
@@ -391,7 +387,7 @@ function cancelLogout() {
 
                       <v-card-actions>
                         <v-btn text @click="cancelAllOrders">Cancel All Orders</v-btn>
-                        <v-btn text @click="placeOrder">PLACE ORDER</v-btn>
+                        <v-btn text @click="bookOrder">BOOK ORDER</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-dialog>

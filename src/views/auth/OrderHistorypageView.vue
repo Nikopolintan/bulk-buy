@@ -1,55 +1,93 @@
 <script setup>
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useOrderStore } from '@/stores/orders'  // <-- Import your store
+import { ref, onMounted, computed } from 'vue'  // Added computed import
+import baoBaoBg from '/images/bao-bao.png'
+import { supabase } from '@/utils/supabase'
 
 const router = useRouter()
 
 // Toggle for the drawer
 const drawer = ref(false)
 
-// Access the order store
-const orderStore = useOrderStore()
+// User Profile Info
+const fullName = ref('')
+const email = ref('')
+const phone = ref('')
+const address = ref('')
 
-const fullName = 'John Doe'
-const email = 'johndoe@example.com'
-const phone = '09123456789'
-const address = '123 Main Street, Cityville'
+async function fetchUserInfo() {
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error) {
+    console.error('Error fetching user:', error.message)
+    return
+  }
 
-function goToAbout() {
-  router.push('/about')
+  const metadata = user?.user_metadata
+  fullName.value = metadata?.full_name || 'Customer'
+  email.value = user?.email || 'N/A'
+  phone.value = metadata?.phone_num || 'N/A'
+  address.value = metadata?.address || 'N/A'
 }
 
+onMounted(() => {
+  fetchUserInfo()
+  fetchOrders()
+})
+
+const backgroundStyle = computed(() => ({
+  backgroundImage: `url(${baoBaoBg})`,
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
+  backgroundAttachment: 'fixed',
+  backgroundColor: 'rgba(0, 0, 255, 0.1)'
+}))
+
+// Order History Section
+const orders = ref([])
+
+async function fetchOrders() {
+  const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
+  if (error) {
+    console.error('Error fetching orders:', error.message)
+    return
+  }
+  orders.value = data
+}
+
+// Settings Toggles and Dialogs
 const showSettingsCard = ref(false)
-
-function openSettings() {
-  showSettingsCard.value = true
-}
-
 const showChangePasswordDialog = ref(false)
 const showNotificationPreferencesDialog = ref(false)
 const showAccountPrivacyDialog = ref(false)
+const showLogoutDialog = ref(false)
 
+// Password Section
 const currentPassword = ref('')
-const newPassword = ref('')
-const confirmNewPassword = ref('')
+const password = ref('')
+const passwordCon = ref('')
+const showPassword1 = ref(false)
+const showPassword2 = ref(false)
 
-const emailNotifications = ref(true)
-const smsNotifications = ref(false)
-const appNotifications = ref(true)
-
-const accountPrivacySetting = ref('public')
-
-function openChangePassword() {
-  showChangePasswordDialog.value = true
+function togglePasswordVisibility1() {
+  showPassword1.value = !showPassword1.value
 }
 
-function openAccountPrivacy() {
-  showAccountPrivacyDialog.value = true
+function togglePasswordVisibility2() {
+  showPassword2.value = !showPassword2.value
 }
+
+const passwordRules = [
+  v => !!v || 'Password is required',
+  v => v.length >= 6 || 'Password must be at least 6 characters',
+]
+
+const passwordConRules = [
+  v => !!v || 'Password confirmation is required',
+  v => v === password.value || 'Passwords do not match',
+]
 
 function saveNewPassword() {
-  if (newPassword.value !== confirmNewPassword.value) {
+  if (password.value !== passwordCon.value) {
     alert('Passwords do not match!')
     return
   }
@@ -57,58 +95,48 @@ function saveNewPassword() {
   showChangePasswordDialog.value = false
 }
 
-function openNotificationPreferences() {
-  showNotificationPreferencesDialog.value = true
-}
+// Notification Preferences
+const emailNotifications = ref(true)
+const smsNotifications = ref(false)
+const appNotifications = ref(true)
 
 function saveNotificationPreferences() {
   alert('Notification preferences saved!')
   showNotificationPreferencesDialog.value = false
 }
 
+// Privacy Settings
+const accountPrivacySetting = ref('public')
+
 function saveAccountPrivacy() {
   alert('Privacy setting saved!')
   showAccountPrivacyDialog.value = false
 }
 
-// Password
-const password = ref('')
-const passwordRules = [
-  (v) => !!v || 'Password is required',
-  (v) => v.length >= 6 || 'Password must be at least 6 characters',
-]
-
-// Confirm Password
-const passwordCon = ref('')
-const passwordConRules = [
-  (v) => !!v || 'Password confirmation is required',
-  (v) => v === password.value || 'Passwords do not match',
-]
-
-// Toggle functions
-const showPassword1 = ref(false)
-function togglePasswordVisibility1() {
-  showPassword1.value = !showPassword1.value
+// Dialog Openers
+function openSettings() {
+  showSettingsCard.value = true
+}
+function openChangePassword() {
+  showChangePasswordDialog.value = true
+}
+function openNotificationPreferences() {
+  showNotificationPreferencesDialog.value = true
+}
+function openAccountPrivacy() {
+  showAccountPrivacyDialog.value = true
 }
 
-const showPassword2 = ref(false)
-function togglePasswordVisibility2() {
-  showPassword2.value = !showPassword2.value
-}
-
-const showLogoutDialog = ref(false) // Initially set to false so it's hidden
-
+// Logout
 function logout() {
-  showLogoutDialog.value = true // Show the confirmation dialog when logout is clicked
+  showLogoutDialog.value = true
 }
-
 function confirmLogout() {
-  router.push('/login') // Redirect to login page
-  showLogoutDialog.value = false // Close the confirmation dialog
+  router.push('/login')
+  showLogoutDialog.value = false
 }
-
 function cancelLogout() {
-  showLogoutDialog.value = false // Close the confirmation dialog without logging out
+  showLogoutDialog.value = false
 }
 </script>
 
@@ -122,7 +150,7 @@ function cancelLogout() {
             <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
           </v-avatar>
           <v-list-item-content>
-            <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
+            <v-list-item-title class="font-weight-bold" @click="openSettings">{{ fullName }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -133,11 +161,8 @@ function cancelLogout() {
           <v-list-item><v-list-item-title><strong>Phone:</strong> {{ phone }}</v-list-item-title></v-list-item>
           <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
 
-          <v-divider></v-divider>
+          <v-divider class="my-2"></v-divider>
 
-          <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item>
           <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
             <v-list-item-title>Settings</v-list-item-title>
           </v-list-item>
@@ -147,184 +172,161 @@ function cancelLogout() {
         </v-list>
       </v-navigation-drawer>
 
-      <v-main>
-        <!-- Header -->
+      <v-main class="scrollable-main">
+        <div :style="backgroundStyle" class="background-blur-wrapper"></div>
+        <!-- App Bar -->
         <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
           <v-spacer></v-spacer>
-
-          <v-btn icon size="medium" class="mx-5">
+          <v-btn icon class="mx-5">
             <v-icon>mdi-bell</v-icon>
           </v-btn>
-
-          <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
+          <v-btn icon class="mx-5 pe-3" @click.stop="drawer = !drawer">
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </v-app-bar>
 
-        <!-- LOGOUT CONFIRMATION DIALOG -->
-        <v-dialog v-model="showLogoutDialog" persistent>
-            <v-card class="mx-auto">
-              <v-card-title class="text-center"> Are you sure you want to log out? </v-card-title>
-              <v-card-actions>
-                <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
-                <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <!-- SETTINGS -->
-          <v-dialog v-model="showSettingsCard" max-width="400" persistent>
-            <v-card class="pa-4">
-              <v-card-title>Settings</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-list>
-                  <v-list-item prepend-icon="mdi-lock-reset" @click="openChangePassword">
-                    <v-list-item-title>Change Password</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-bell-ring" @click="openNotificationPreferences">
-                    <v-list-item-title>Notification Preferences</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-shield-account" @click="openAccountPrivacy">
-                    <v-list-item-title>Account Privacy</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue-lighten-1" text @click="showSettingsCard = false">Close</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <!-- Change Password Dialog -->
-          <v-dialog v-model="showChangePasswordDialog" max-width="400">
-            <v-card class="pa-4">
-              <v-card-title>Change Password</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-text-field v-model="currentPassword" label="Current Password" type="password" />
-                <v-text-field
-                  v-model="password"
-                  :rules="passwordRules"
-                  :type="showPassword1 ? 'text' : 'password'"
-                  label="New Password"
-                  :append-inner-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
-                  @click:append-inner="togglePasswordVisibility1"
-                />
-
-                <v-text-field
-                  v-model="passwordCon"
-                  :rules="passwordConRules"
-                  :type="showPassword2 ? 'text' : 'password'"
-                  label="Password Confirmation"
-                  :append-inner-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
-                  @click:append-inner="togglePasswordVisibility2"
-                />
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text color="blue" @click="saveNewPassword">Save</v-btn>
-                <v-btn text @click="showChangePasswordDialog = false">Cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <!-- Notification Preferences Dialog -->
-          <v-dialog v-model="showNotificationPreferencesDialog" max-width="500">
-            <v-card class="pa-4">
-              <v-card-title>Notification Preferences</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-switch
-                  v-model="emailNotifications"
-                  label="Email Notifications"
-                  color="blue"
-                  class="animated-switch"
-                />
-                <v-switch
-                  v-model="smsNotifications"
-                  label="SMS Notifications"
-                  color="blue"
-                  class="animated-switch"
-                />
-                <v-switch
-                  v-model="appNotifications"
-                  label="App Notifications"
-                  color="blue"
-                  class="animated-switch"
-                />
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
-                <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <!-- Account Privacy Dialog -->
-          <v-dialog v-model="showAccountPrivacyDialog" max-width="500">
-            <v-card class="pa-4">
-              <v-card-title>Account Privacy</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-radio-group v-model="accountPrivacySetting">
-                  <v-radio label="Public Profile" value="public"></v-radio>
-                  <v-radio label="Private Profile" value="private"></v-radio>
-                </v-radio-group>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text color="blue" @click="saveAccountPrivacy">Save</v-btn>
-                <v-btn text @click="showAccountPrivacyDialog = false">Cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-        <!-- Order History -->
-        <v-container class="mt-6">
+        <!-- 🧾 Order History Section -->
+        <v-container class="mt-8">
           <v-row>
             <v-col cols="12">
-              <v-card elevation="4">
-                <v-card-title class="text-h5">Order History</v-card-title>
-                <v-divider></v-divider>
-
+              <h2 class="text-h5 mb-4">Your Order History</h2>
+              <v-card v-if="orders.length === 0" class="pa-4">
+                <v-card-text class="text-center">No orders yet.</v-card-text>
+              </v-card>
+              <v-card
+                v-for="order in orders"
+                :key="order.id"
+                class="mb-4"
+                color="blue-lighten-5"
+              >
+                <v-card-title>Order #{{ order.id }}</v-card-title>
+                <v-card-subtitle>Date: {{ new Date(order.created_at).toLocaleString() }}</v-card-subtitle>
                 <v-card-text>
-                  <div v-if="orderStore.orders.length === 0" class="text-center grey--text">
-                    No orders found.
-                  </div>
-
-                  <v-expansion-panels v-else>
-                    <v-expansion-panel v-for="(order, index) in orderStore.orders" :key="index">
-                      <v-expansion-panel-title>
-                        Order #{{ index + 1 }}
-                        <br>
-                        <p class="px-2">DATE:</p>
-                        <small>{{ order.date }} {{ order.time }}</small>  <!-- show date and time -->
-                      </v-expansion-panel-title>
-                      <v-expansion-panel-text>
-                        <v-list dense>
-                          <strong>Order Description:</strong> {{ order.description }}
-                          <v-list-item v-for="(item, idx) in order.items" :key="idx">
-                            <v-list-item-content>
-                              <v-list-item-title>{{ item.name }}</v-list-item-title>
-                              <v-list-item-subtitle>Qty: {{ item.quantity }} — ₱{{ item.price }}</v-list-item-subtitle>
-                            </v-list-item-content>
-                          </v-list-item>
-                          <div class="mt-2 text-right font-weight-bold">
-                          Total: ₱{{ order.items.reduce((sum, item) => sum + item.price * item.quantity, 0) }}
-                        </div>
-                        </v-list>
-                      </v-expansion-panel-text>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
+                  <strong>Status:</strong> {{ order.status }} <br />
+                  <strong>Total:</strong> ₱{{ order.total }}
                 </v-card-text>
               </v-card>
             </v-col>
           </v-row>
         </v-container>
+
+        <!-- Logout Dialog -->
+        <v-dialog v-model="showLogoutDialog" persistent>
+          <v-card class="mx-auto">
+            <v-card-title class="text-center">Are you sure you want to log out?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="blue-lighten-1" @click="cancelLogout">Cancel</v-btn>
+              <v-btn text color="red" @click="confirmLogout">Log Out</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Settings Dialog -->
+        <v-dialog v-model="showSettingsCard" max-width="400" persistent>
+          <v-card class="pa-4">
+            <v-card-title>Settings</v-card-title>
+            <v-divider></v-divider>
+            <v-card-text>
+              <v-list>
+                <v-list-item prepend-icon="mdi-lock-reset" @click="openChangePassword">
+                  <v-list-item-title>Change Password</v-list-item-title>
+                </v-list-item>
+                <v-list-item prepend-icon="mdi-bell-ring" @click="openNotificationPreferences">
+                  <v-list-item-title>Notification Preferences</v-list-item-title>
+                </v-list-item>
+                <v-list-item prepend-icon="mdi-shield-account" @click="openAccountPrivacy">
+                  <v-list-item-title>Account Privacy</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="blue-lighten-1" @click="showSettingsCard = false">Close</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Change Password Dialog -->
+        <v-dialog v-model="showChangePasswordDialog" max-width="400">
+          <v-card class="pa-4">
+            <v-card-title>Change Password</v-card-title>
+            <v-divider></v-divider>
+            <v-card-text>
+              <v-text-field v-model="currentPassword" label="Current Password" type="password" />
+              <v-text-field
+                v-model="password"
+                :rules="passwordRules"
+                :type="showPassword1 ? 'text' : 'password'"
+                label="New Password"
+                :append-inner-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="togglePasswordVisibility1"
+              />
+              <v-text-field
+                v-model="passwordCon"
+                :rules="passwordConRules"
+                :type="showPassword2 ? 'text' : 'password'"
+                label="Password Confirmation"
+                :append-inner-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="togglePasswordVisibility2"
+              />
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="blue" @click="saveNewPassword">Save</v-btn>
+              <v-btn text @click="showChangePasswordDialog = false">Cancel</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Notification Preferences Dialog -->
+        <v-dialog v-model="showNotificationPreferencesDialog" max-width="500">
+          <v-card class="pa-4">
+            <v-card-title>Notification Preferences</v-card-title>
+            <v-divider></v-divider>
+            <v-card-text>
+              <v-switch v-model="emailNotifications" label="Email Notifications" color="blue" />
+              <v-switch v-model="smsNotifications" label="SMS Notifications" color="blue" />
+              <v-switch v-model="appNotifications" label="App Notifications" color="blue" />
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
+              <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Account Privacy Dialog -->
+        <v-dialog v-model="showAccountPrivacyDialog" max-width="500">
+          <v-card class="pa-4">
+            <v-card-title>Account Privacy</v-card-title>
+            <v-divider></v-divider>
+            <v-card-text>
+              <v-radio-group v-model="accountPrivacySetting">
+                <v-radio label="Public Profile" value="public" />
+                <v-radio label="Private Profile" value="private" />
+              </v-radio-group>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="blue" @click="saveAccountPrivacy">Save</v-btn>
+              <v-btn text @click="showAccountPrivacyDialog = false">Cancel</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-main>
     </v-layout>
   </v-card>
 </template>
+
+<style scoped>
+.background-blur-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+</style>
