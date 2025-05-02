@@ -92,9 +92,6 @@ function placeOrder() {
   showReceiptDialog.value = false
 }
 
-function goToAbout() {
-  router.push('/about')
-}
 
 function openSettings() {
   showSettingsCard.value = true
@@ -185,10 +182,6 @@ function cancelLogout() {
           <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
 
           <v-divider></v-divider>
-
-          <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item>
           <v-list-item prepend-icon="mdi-cart" @click="router.push('/orderhistorypage')">
             <v-list-item-title>My Orders</v-list-item-title>
           </v-list-item>
