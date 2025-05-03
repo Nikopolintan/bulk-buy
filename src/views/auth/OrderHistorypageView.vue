@@ -1,19 +1,21 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, onMounted, computed } from 'vue'  // Added computed import
+import { ref, onMounted, computed } from 'vue'
 import baoBaoBg from '/images/bao-bao.png'
 import { supabase } from '@/utils/supabase'
+import { useOrderStore } from '@/stores/orders'
 
 const router = useRouter()
+const orderStore = useOrderStore()
 
 // Toggle for the drawer
 const drawer = ref(false)
 
 // User Profile Info
-const fullName = ref('')
-const email = ref('')
-const phone = ref('')
-const address = ref('')
+const fullName = ref('Customer')
+const email = ref('N/A')
+const phone = ref('N/A')
+const address = ref('N/A')
 
 async function fetchUserInfo() {
   const { data: { user }, error } = await supabase.auth.getUser()
@@ -22,11 +24,11 @@ async function fetchUserInfo() {
     return
   }
 
-  const metadata = user?.user_metadata
-  fullName.value = metadata?.full_name || 'Customer'
+  const metadata = user?.user_metadata || {}
+  fullName.value = metadata.full_name || 'Customer'
   email.value = user?.email || 'N/A'
-  phone.value = metadata?.phone_num || 'N/A'
-  address.value = metadata?.address || 'N/A'
+  phone.value = metadata.phone_num || 'N/A'
+  address.value = metadata.address || 'N/A'
 }
 
 onMounted(() => {
@@ -38,7 +40,6 @@ function goToCustomerHomepage() {
   router.push('/customerhomepage')
 }
 
-
 const backgroundStyle = computed(() => ({
   backgroundImage: `url(${baoBaoBg})`,
   backgroundSize: 'cover',
@@ -48,15 +49,18 @@ const backgroundStyle = computed(() => ({
 }))
 
 // Order History Section
-const orders = ref([])
-
 async function fetchOrders() {
-  const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+
   if (error) {
     console.error('Error fetching orders:', error.message)
     return
   }
-  orders.value = data
+
+  data.forEach(order => orderStore.addOrder(order))
 }
 
 // Settings Toggles and Dialogs
@@ -194,24 +198,37 @@ function cancelLogout() {
         </v-app-bar>
 
         <!-- 🧾 Order History Section -->
-        <v-container class="mt-8">
-          <v-row>
-            <v-col cols="12">
-              <h2 class="text-h5 mb-4">Your Order History</h2>
-              <v-card v-if="orders.length === 0" class="pa-4">
-                <v-card-text class="text-center">No orders yet.</v-card-text>
-              </v-card>
-              <v-card
-                v-for="order in orders"
-                :key="order.id"
-                class="mb-4"
-                color="blue-lighten-5"
-              >
-                <v-card-title>Order #{{ order.id }}</v-card-title>
-                <v-card-subtitle>Date: {{ new Date(order.created_at).toLocaleString() }}</v-card-subtitle>
+        <v-container>
+          <v-row v-if="orderStore.orders.length === 0">
+            <v-col class="text-center">
+              <p>No orders found.</p>
+            </v-col>
+          </v-row>
+
+          <v-row v-else>
+            <!-- Single Card to Display All Orders -->
+            <v-col cols="12" class="d-flex justify-center">
+              <v-card elevation="2" class="mx-auto" style="max-width: 900px; width: 100%;">
+                <v-card-subtitle class="text-center">Order History</v-card-subtitle>
                 <v-card-text>
-                  <strong>Status:</strong> {{ order.status }} <br />
-                  <strong>Total:</strong> ₱{{ order.total }}
+                  <div v-for="(order, index) in orderStore.orders" :key="index" class="mb-4">
+                    <div class="font-weight-bold">{{ order.customer }}</div>
+                    <div v-for="(item, idx) in order.items" :key="idx" class="d-flex justify-space-between">
+                      <div>{{ item.name }} - Qty: {{ item.quantity }}</div>
+                      <div>₱{{ item.price }}</div>
+                    </div>
+
+                    <!-- Delivery Fee & Total -->
+                    <v-row class="mt-4">
+                      <v-col class="text-start font-weight-medium">Delivery Fee:</v-col>
+                      <v-col class="text-end">₱{{ order.deliveryFee }}</v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="text-start font-weight-medium">Total:</v-col>
+                      <v-col class="text-end font-weight-bold text-primary">₱{{ order.total }}</v-col>
+                    </v-row>
+                    <hr />
+                  </div>
                 </v-card-text>
               </v-card>
             </v-col>
