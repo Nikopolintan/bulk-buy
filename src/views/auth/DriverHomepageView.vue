@@ -159,10 +159,6 @@ function cancelLogout() {
           <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
 
           <v-divider></v-divider>
-
-          <v-list-item prepend-icon="mdi-forum" @click="goToAbout">
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item>
           <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
             <v-list-item-title>Settings</v-list-item-title>
           </v-list-item>
