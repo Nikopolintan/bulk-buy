@@ -58,9 +58,9 @@ const onSubmit = async () => {
 
     // Redirect based on role after success
     if (formData.value.role === 'Customer') {
-      router.push('/customerhomepage')
+      router.replace('/customerhomepage')
     } else if (formData.value.role === 'Driver') {
-      router.push('/driverhomepage')
+      router.replace('/driverhomepage')
     }
   }
 

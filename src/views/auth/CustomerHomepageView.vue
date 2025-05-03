@@ -154,9 +154,16 @@ function logout() {
   showLogoutDialog.value = true
 }
 
-function confirmLogout() {
-  router.push('/login')
+async function confirmLogout() {
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+    console.error('Error logging out:', error.message)
+    alert('Failed to log out. Please try again.')
+    return
+  }
+
   showLogoutDialog.value = false
+  router.replace('/')
 }
 
 function cancelLogout() {

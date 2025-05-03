@@ -45,9 +45,9 @@ const onSubmit = async (role) => {
   formAction.value.formProcess = false
 
   if (role.toLowerCase() === 'customer') {
-    router.push('/customerhomepage')
+    router.replace('/customerhomepage')
   } else {
-    router.push('/driverhomepage')
+    router.replace('/driverhomepage')
   }
 }
 
