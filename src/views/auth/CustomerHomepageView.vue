@@ -27,18 +27,20 @@ const phone = ref('')
 const address = ref('')
 
 async function fetchUserInfo() {
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error) {
-    console.error('Error fetching user:', error.message)
+  const { data: sessionData, error } = await supabase.auth.getSession()
+  if (error || !sessionData.session) {
+    console.error('Error fetching session or session is null:', error?.message)
     return
   }
 
+  const user = sessionData.session.user
   const metadata = user?.user_metadata
   fullName.value = metadata?.full_name || 'Driver'
   email.value = user?.email || 'N/A'
   phone.value = metadata?.phone_num || 'N/A'
   address.value = metadata?.address || 'N/A'
 }
+
 
 onMounted(() => {
   fetchUserInfo()

@@ -16,17 +16,20 @@ const phone = ref('')
 const address = ref('')
 
 async function fetchUserInfo() {
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const { data: { session }, error } = await supabase.auth.getSession()
   if (error) {
-    console.error('Error fetching user:', error.message)
+    console.error('Error fetching session:', error.message)
     return
   }
 
-  const metadata = user?.user_metadata
-  fullName.value = metadata?.full_name || 'Driver'
-  email.value = user?.email || 'N/A'
-  phone.value = metadata?.phone_num || 'N/A'
-  address.value = metadata?.address || 'N/A'
+  const user = session?.user
+  if (user) {
+    const metadata = user?.user_metadata
+    fullName.value = metadata?.full_name || 'Driver'
+    email.value = user?.email || 'N/A'
+    phone.value = metadata?.phone_num || 'N/A'
+    address.value = metadata?.address || 'N/A'
+  }
 }
 
 onMounted(() => {
@@ -143,6 +146,7 @@ function cancelLogout() {
   showLogoutDialog.value = false
 }
 </script>
+
 
 <template>
   <v-card>
