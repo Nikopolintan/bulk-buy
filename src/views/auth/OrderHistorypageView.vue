@@ -34,6 +34,11 @@ onMounted(() => {
   fetchOrders()
 })
 
+function goToCustomerHomepage() {
+  router.push('/customerhomepage')
+}
+
+
 const backgroundStyle = computed(() => ({
   backgroundImage: `url(${baoBaoBg})`,
   backgroundSize: 'cover',
@@ -163,6 +168,9 @@ function cancelLogout() {
 
           <v-divider class="my-2"></v-divider>
 
+          <v-list-item prepend-icon="mdi-home" @click="goToCustomerHomepage">
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item>
           <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
             <v-list-item-title>Settings</v-list-item-title>
           </v-list-item>
