@@ -8,22 +8,23 @@ import { useOrderStore } from '@/stores/orders'
 const router = useRouter()
 const orderStore = useOrderStore()
 
-// Toggle for the drawer
+// Drawer toggle
 const drawer = ref(false)
 
-// User Profile Info
+// User Info
 const fullName = ref('Customer')
 const email = ref('N/A')
 const phone = ref('N/A')
 const address = ref('N/A')
 
 async function fetchUserInfo() {
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const { data: userData, error } = await supabase.auth.getUser()
   if (error) {
     console.error('Error fetching user:', error.message)
     return
   }
 
+  const user = userData?.user
   const metadata = user?.user_metadata || {}
   fullName.value = metadata.full_name || 'Customer'
   email.value = user?.email || 'N/A'
@@ -45,12 +46,11 @@ const backgroundStyle = computed(() => ({
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
   backgroundAttachment: 'fixed',
-  backgroundColor: 'rgba(0, 0, 255, 0.1)'
+  backgroundColor: 'rgba(0, 0, 255, 0.1)',
 }))
 
-// Order History Section
 async function fetchOrders() {
-  const { data, error } = await supabase
+  const { data: orders, error } = await supabase
     .from('orders')
     .select('*')
     .order('created_at', { ascending: false })
@@ -60,17 +60,54 @@ async function fetchOrders() {
     return
   }
 
-  data.forEach(order => orderStore.addOrder(order))
+  orders.forEach(order => orderStore.addOrder(order))
 }
 
-// Settings Toggles and Dialogs
+async function cancelOrder(orderId) {
+  const { error } = await supabase
+    .from('orders')
+    .update({ status: 'Cancelled' })
+    .eq('id', orderId)
+
+  if (error) {
+    console.error('Error cancelling order:', error.message)
+    return
+  }
+
+  const updatedOrder = orderStore.orders.find(order => order.id === orderId)
+  if (updatedOrder) {
+    updatedOrder.status = 'Cancelled'
+  }
+
+  alert('Order cancelled successfully!')
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+  const { error } = await supabase
+    .from('orders')
+    .update({ status: newStatus })
+    .eq('id', orderId)
+
+  if (error) {
+    console.error('Error updating order status:', error.message)
+    return
+  }
+
+  const updatedOrder = orderStore.orders.find(order => order.id === orderId)
+  if (updatedOrder) {
+    updatedOrder.status = newStatus
+  }
+
+  alert(`Order marked as '${newStatus}' successfully!`)
+}
+
+// Settings
 const showSettingsCard = ref(false)
 const showChangePasswordDialog = ref(false)
 const showNotificationPreferencesDialog = ref(false)
 const showAccountPrivacyDialog = ref(false)
 const showLogoutDialog = ref(false)
 
-// Password Section
 const currentPassword = ref('')
 const password = ref('')
 const passwordCon = ref('')
@@ -104,7 +141,6 @@ function saveNewPassword() {
   showChangePasswordDialog.value = false
 }
 
-// Notification Preferences
 const emailNotifications = ref(true)
 const smsNotifications = ref(false)
 const appNotifications = ref(true)
@@ -114,7 +150,6 @@ function saveNotificationPreferences() {
   showNotificationPreferencesDialog.value = false
 }
 
-// Privacy Settings
 const accountPrivacySetting = ref('public')
 
 function saveAccountPrivacy() {
@@ -122,7 +157,6 @@ function saveAccountPrivacy() {
   showAccountPrivacyDialog.value = false
 }
 
-// Dialog Openers
 function openSettings() {
   showSettingsCard.value = true
 }
@@ -136,7 +170,6 @@ function openAccountPrivacy() {
   showAccountPrivacyDialog.value = true
 }
 
-// Logout
 function logout() {
   showLogoutDialog.value = true
 }
@@ -152,7 +185,6 @@ function cancelLogout() {
 <template>
   <v-card>
     <v-layout>
-      <!-- Navigation Drawer -->
       <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
         <v-list-item class="text-center mt-2">
           <v-avatar>
@@ -162,16 +194,12 @@ function cancelLogout() {
             <v-list-item-title class="font-weight-bold" @click="openSettings">{{ fullName }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-
         <v-divider></v-divider>
-
         <v-list nav>
           <v-list-item><v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title></v-list-item>
           <v-list-item><v-list-item-title><strong>Phone:</strong> {{ phone }}</v-list-item-title></v-list-item>
           <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
-
           <v-divider class="my-2"></v-divider>
-
           <v-list-item prepend-icon="mdi-home" @click="goToCustomerHomepage">
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item>
@@ -186,7 +214,6 @@ function cancelLogout() {
 
       <v-main class="scrollable-main">
         <div :style="backgroundStyle" class="background-blur-wrapper"></div>
-        <!-- App Bar -->
         <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
           <v-spacer></v-spacer>
           <v-btn icon class="mx-5">
@@ -197,7 +224,7 @@ function cancelLogout() {
           </v-btn>
         </v-app-bar>
 
-        <!-- 🧾 Order History Section -->
+        <!-- Order History Section -->
         <v-container>
           <v-row v-if="orderStore.orders.length === 0">
             <v-col class="text-center">
@@ -206,19 +233,16 @@ function cancelLogout() {
           </v-row>
 
           <v-row v-else>
-            <!-- Single Card to Display All Orders -->
             <v-col cols="12" class="d-flex justify-center">
               <v-card elevation="2" class="mx-auto" style="max-width: 900px; width: 100%;">
                 <v-card-subtitle class="text-center">Order History</v-card-subtitle>
                 <v-card-text>
-                  <div v-for="(order, index) in orderStore.orders" :key="index" class="mb-4">
+                  <div v-for="(order) in orderStore.orders" :key="order.id" class="mb-4">
                     <div class="font-weight-bold">{{ order.customer }}</div>
                     <div v-for="(item, idx) in order.items" :key="idx" class="d-flex justify-space-between">
                       <div>{{ item.name }} - Qty: {{ item.quantity }}</div>
                       <div>₱{{ item.price }}</div>
                     </div>
-
-                    <!-- Delivery Fee & Total -->
                     <v-row class="mt-4">
                       <v-col class="text-start font-weight-medium">Delivery Fee:</v-col>
                       <v-col class="text-end">₱{{ order.deliveryFee }}</v-col>
@@ -226,6 +250,27 @@ function cancelLogout() {
                     <v-row>
                       <v-col class="text-start font-weight-medium">Total:</v-col>
                       <v-col class="text-end font-weight-bold text-primary">₱{{ order.total }}</v-col>
+                    </v-row>
+                    <v-row class="mt-4">
+                      <v-col class="text-start font-weight-medium">Status:</v-col>
+                      <v-col class="text-end">{{ order.status }}</v-col>
+                    </v-row>
+
+                    <!-- Status Actions -->
+                    <v-row v-if="order.status === 'Accepted'">
+                      <v-col class="text-end">
+                        <v-btn color="orange" @click="updateOrderStatus(order.id, 'On the way')">Mark as On the Way</v-btn>
+                      </v-col>
+                    </v-row>
+                    <v-row v-if="order.status === 'On the way'">
+                      <v-col class="text-end">
+                        <v-btn color="green" @click="updateOrderStatus(order.id, 'Delivered')">Mark as Delivered</v-btn>
+                      </v-col>
+                    </v-row>
+                    <v-row v-if="order.status !== 'Delivered' && order.status !== 'Cancelled'">
+                      <v-col class="text-end">
+                        <v-btn color="red" @click="cancelOrder(order.id)">Cancel Order</v-btn>
+                      </v-col>
                     </v-row>
                     <hr />
                   </div>
