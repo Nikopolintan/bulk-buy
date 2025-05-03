@@ -74,23 +74,30 @@ function cancelAllOrders() {
   orderedProducts.value = []
 }
 
+const deliveryFee = 50
+
 const totalPrice = computed(() =>
   orderedProducts.value.reduce((sum, item) => sum + item.price, 0)
 )
 
 function bookOrder() {
   if (orderedProducts.value.length === 0) return
+  showReceiptDialog.value = true
+}
 
+function confirmBookOrder() {
   orderStore.addOrder({
-    customer: '',
-    address: '',
-    items: [...orderedProducts.value],
-  })
+  customer: fullName.value,
+  address: address.value,
+  items: [...orderedProducts.value],
+  deliveryFee,
+  total: totalPrice.value + deliveryFee,
+})
 
   orderedProducts.value = []
   showReceiptDialog.value = false
+  router.push('/OrderHistorypage')
 }
-
 
 function openSettings() {
   showSettingsCard.value = true
@@ -113,7 +120,6 @@ const accountPrivacySetting = ref('public')
 function openChangePassword() {
   showChangePasswordDialog.value = true
 }
-
 
 function openAccountPrivacy() {
   showAccountPrivacyDialog.value = true
@@ -142,21 +148,20 @@ function saveAccountPrivacy() {
   showAccountPrivacyDialog.value = false
 }
 
-const showLogoutDialog = ref(false)  // Initially set to false so it's hidden
+const showLogoutDialog = ref(false)
 
 function logout() {
-  showLogoutDialog.value = true // Show the confirmation dialog when logout is clicked
+  showLogoutDialog.value = true
 }
 
 function confirmLogout() {
-  router.push('/login')  // Redirect to login page
-  showLogoutDialog.value = false  // Close the confirmation dialog
+  router.push('/login')
+  showLogoutDialog.value = false
 }
 
 function cancelLogout() {
-  showLogoutDialog.value = false  // Close the confirmation dialog without logging out
+  showLogoutDialog.value = false
 }
-
 </script>
 
 <template>
@@ -435,6 +440,32 @@ function cancelLogout() {
             </v-row>
           </v-container>
         </div>
+          <v-dialog v-model="showReceiptDialog" max-width="400">
+            <v-card>
+              <v-card-title class="text-h6">Receipt Summary</v-card-title>
+              <v-card-text>
+                <v-list dense>
+                  <v-list-item v-for="item in orderedProducts" :key="item.name">
+                    <v-list-item-content>
+                      <v-list-item-title>{{ item.name }} (x{{ item.quantity }})</v-list-item-title>
+                      <v-list-item-subtitle>₱{{ item.price.toFixed(2) }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-divider class="my-2"></v-divider>
+                <div class="text-right">
+                  <p>Subtotal: ₱{{ totalPrice - deliveryFee }}</p>
+                  <p>Delivery Fee: ₱{{ deliveryFee }}</p>
+                  <p><strong>Total: ₱{{ totalPrice }}</strong></p>
+                </div>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="grey" text @click="showReceiptDialog = false">Cancel</v-btn>
+                <v-btn color="blue-darken-1" text @click="confirmBookOrder">Confirm</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
       </v-main>
     </v-layout>
   </v-card>
