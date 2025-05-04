@@ -4,13 +4,15 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase'
 import baoBaoBg from '/images/bao-bao.png'
 import { useOrderStore } from '@/stores/orders'
+import ProfileSettings from '@/components/layout/ProfileSettings.vue'
+import Logout from '@/components/layout/LogOut.vue'
 
 const router = useRouter()
 const orderStore = useOrderStore()
 
 const drawer = ref(false)
 const showReceiptDialog = ref(false)
-const showSettingsCard = ref(false)
+
 
 const backgroundStyle = computed(() => ({
   backgroundImage: `url(${baoBaoBg})`,
@@ -101,76 +103,7 @@ function confirmBookOrder() {
   router.push('/OrderHistorypage')
 }
 
-function openSettings() {
-  showSettingsCard.value = true
-}
 
-const showChangePasswordDialog = ref(false)
-const showNotificationPreferencesDialog = ref(false)
-const showAccountPrivacyDialog = ref(false)
-
-const currentPassword = ref('')
-const newPassword = ref('')
-const confirmNewPassword = ref('')
-
-const emailNotifications = ref(true)
-const smsNotifications = ref(false)
-const appNotifications = ref(true)
-
-const accountPrivacySetting = ref('public')
-
-function openChangePassword() {
-  showChangePasswordDialog.value = true
-}
-
-function openAccountPrivacy() {
-  showAccountPrivacyDialog.value = true
-}
-
-function saveNewPassword() {
-  if (newPassword.value !== confirmNewPassword.value) {
-    alert('Passwords do not match!')
-    return
-  }
-  alert('Password updated successfully!')
-  showChangePasswordDialog.value = false
-}
-
-function openNotificationPreferences() {
-  showNotificationPreferencesDialog.value = true
-}
-
-function saveNotificationPreferences() {
-  alert('Notification preferences saved!')
-  showNotificationPreferencesDialog.value = false
-}
-
-function saveAccountPrivacy() {
-  alert('Privacy setting saved!')
-  showAccountPrivacyDialog.value = false
-}
-
-const showLogoutDialog = ref(false)
-
-function logout() {
-  showLogoutDialog.value = true
-}
-
-async function confirmLogout() {
-  const { error } = await supabase.auth.signOut()
-  if (error) {
-    console.error('Error logging out:', error.message)
-    alert('Failed to log out. Please try again.')
-    return
-  }
-
-  showLogoutDialog.value = false
-  router.replace('/')
-}
-
-function cancelLogout() {
-  showLogoutDialog.value = false
-}
 </script>
 
 <template>
@@ -198,12 +131,8 @@ function cancelLogout() {
           <v-list-item prepend-icon="mdi-cart" @click="router.push('/orderhistorypage')">
             <v-list-item-title>My Orders</v-list-item-title>
           </v-list-item>
-          <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
-            <v-list-item-title>Settings</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-logout" @click="logout">
-            <v-list-item-title>Log Out</v-list-item-title>
-          </v-list-item>
+          <ProfileSettings></ProfileSettings>
+          <Logout></Logout>
         </v-list>
       </v-navigation-drawer>
 
@@ -222,114 +151,9 @@ function cancelLogout() {
             </v-btn>
           </v-app-bar>
 
-            <!-- LOGOUT CONFIRMATION DIALOG -->
-            <v-dialog v-model="showLogoutDialog" max-width="400" persistent>
-              <v-card class="pa-4">
-                <v-card-title class="text-center">
-                  <v-icon color="red" class="mr-2">mdi-cry</v-icon>
-                  Are you sure you want to log out?
-                </v-card-title>
-                <v-card-actions>
-                  <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
-                  <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
 
-          <!-- SETTINGS -->
-          <v-dialog v-model="showSettingsCard" max-width="400" persistent>
-            <v-card class="pa-4">
-              <v-card-title>Settings</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-list>
-                  <v-list-item prepend-icon="mdi-lock-reset" @click="openChangePassword">
-                    <v-list-item-title>Change Password</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-bell-ring" @click="openNotificationPreferences">
-                    <v-list-item-title>Notification Preferences</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-shield-account" @click="openAccountPrivacy">
-                    <v-list-item-title>Account Privacy</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue-lighten-1" text @click="showSettingsCard = false">Close</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
 
-          <!-- Change Password Dialog -->
-          <v-dialog v-model="showChangePasswordDialog" max-width="400">
-            <v-card class="pa-4">
-              <v-card-title>Change Password</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-text-field v-model="currentPassword" label="Current Password" type="password" />
-                <v-text-field v-model="newPassword" label="New Password" type="password" />
-                <v-text-field v-model="confirmNewPassword" label="Confirm New Password" type="password" />
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text color="blue" @click="saveNewPassword">Save</v-btn>
-                <v-btn text @click="showChangePasswordDialog = false">Cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
 
-          <!-- Notification Preferences Dialog -->
-          <v-dialog v-model="showNotificationPreferencesDialog" max-width="500">
-              <v-card class="pa-4">
-                <v-card-title>Notification Preferences</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text>
-                  <v-switch
-                    v-model="emailNotifications"
-                    label="Email Notifications"
-                    color="blue"
-                    class="animated-switch"
-                  />
-                  <v-switch
-                    v-model="smsNotifications"
-                    label="SMS Notifications"
-                    color="blue"
-                    class="animated-switch"
-                  />
-                  <v-switch
-                    v-model="appNotifications"
-                    label="App Notifications"
-                    color="blue"
-                    class="animated-switch"
-                  />
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
-                  <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-
-          <!-- Account Privacy Dialog -->
-          <v-dialog v-model="showAccountPrivacyDialog" max-width="500">
-            <v-card class="pa-4">
-              <v-card-title>Account Privacy</v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-radio-group v-model="accountPrivacySetting">
-                  <v-radio label="Public Profile" value="public"></v-radio>
-                  <v-radio label="Private Profile" value="private"></v-radio>
-                </v-radio-group>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text color="blue" @click="saveAccountPrivacy">Save</v-btn>
-                <v-btn text @click="showAccountPrivacyDialog = false">Cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
 
           <!-- PAGE CONTENT -->
           <v-container fluid class="page-content">
