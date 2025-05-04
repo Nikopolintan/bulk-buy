@@ -92,19 +92,6 @@ function goToCompletedDeliveries() {
           </v-btn>
         </v-app-bar>
 
-        <!-- LOGOUT CONFIRMATION DIALOG -->
-        <v-dialog v-model="showLogoutDialog" persistent>
-              <v-card class="mx-auto">
-                <v-card-title class="text-center">
-                  Are you sure you want to log out?
-                </v-card-title>
-                <v-card-actions>
-                  <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
-                  <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-
         <!-- Customer Orders -->
         <v-container class="mt-6">
           <v-row>
@@ -126,7 +113,8 @@ function goToCompletedDeliveries() {
                         <div>
                           <small>{{ order.date }} {{ order.time }}</small>  <!-- show date and time -->
                           <div><strong>Customer:</strong> {{ order.customer }}</div>
-                          <div class="text-caption grey--text">{{ order.address }}</div>
+                          <div><strong>Contact Info:</strong> {{ order.phone_num }}</div>
+                          <div class="text-caption grey--text">Address: {{ order.address }}</div>
                         </div>
                       </v-card-title>
 
