@@ -86,8 +86,8 @@ function goToCompletedDeliveries() {
         <!-- App Bar -->
         <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
           <v-spacer></v-spacer>
-          <v-btn icon size="medium" class="mx-5"><v-icon>mdi-bell</v-icon></v-btn>
-          <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
+          <v-btn icon size="medium"><v-icon>mdi-bell</v-icon></v-btn>
+          <v-btn icon size="medium" class="pe-3" @click.stop="drawer = !drawer">
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </v-app-bar>
