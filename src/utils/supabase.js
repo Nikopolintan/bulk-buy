@@ -13,3 +13,27 @@ export const formActionDefault = {
   formErrorMessage: '',
   formSuccessMessage: ''
 }
+
+//check if the session exist and is valid; return false if there's an error
+export const isAuthenticated = async () => {
+  const { data, error } = await supabase.auth.getSession()
+
+  if (error) {
+    console.error('Error getting session:', error.message)
+    return false
+  }
+
+  return !!data.session
+}
+
+export const getUserRole = async () => {
+  const { data: { user } } = await supabase.auth.getSession()
+
+  // Assuming role is in user metadata
+  return user?.user_metadata?.role || null
+
+  // OR fetch from profile table if stored there:
+  // const { data, error } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  // return data?.role || null
+}
+

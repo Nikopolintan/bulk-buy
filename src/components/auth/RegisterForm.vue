@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   requiredValidator,
   emailValidator,
@@ -9,6 +10,7 @@ import {
 import AlertNotification from '@/components/common/AlertNotification.vue'
 import { supabase, formActionDefault } from '@/utils/supabase.js'
 
+const router = useRouter()
 const refVForm = ref()
 
 const formDataDefault = {
@@ -33,7 +35,6 @@ const onSubmit = async () => {
   formAction.value = { ...formActionDefault }
   formAction.value.formProcess = true
 
-  //conditions for supabase
   const { data, error } = await supabase.auth.signUp({
     email: formData.value.email,
     password: formData.value.password,
@@ -54,8 +55,15 @@ const onSubmit = async () => {
   } else if (data) {
     console.log(data)
     formAction.value.formSuccessMessage = 'Successfully Registered'
-    // you can add here more action if you want
+
+    // Redirect based on role after success
+    if (formData.value.role === 'Customer') {
+      router.replace('/customerhomepage')
+    } else if (formData.value.role === 'Driver') {
+      router.replace('/driverhomepage')
+    }
   }
+
   refVForm.value?.reset()
   formAction.value.formProcess = false
 }
@@ -66,7 +74,6 @@ const onFormSubmit = () => {
   })
 }
 
-// Toggle functions
 const showPassword1 = ref(false)
 const showPassword2 = ref(false)
 
@@ -82,6 +89,7 @@ const phoneRules = [
   (v) => /^09\d{9}$/.test(v) || 'Enter a valid Philippine phone number (e.g., 09123456789)',
 ]
 </script>
+
 
 <template>
   <AlertNotification
