@@ -9,7 +9,7 @@ const drawer = ref(false)
 const orderStore = useOrderStore()
 const orders = computed(() => orderStore.orders)
 
-// ========== User Profile Info ==========
+// ========== User Profile Info (Common for both Customer Homepage and Order History) ==========
 const fullName = ref('')
 const email = ref('')
 const phone = ref('')
@@ -33,18 +33,60 @@ onMounted(() => {
   fetchUserInfo()
 })
 
-// ========== Order Actions ==========
-function markAsDelivered(orderId) {
-  const order = orderStore.orders.find(order => order.id === orderId)
-  if (order) {
-    orderStore.removeOrder(orderId)
-    orderStore.addCompletedOrder(order)
+const acceptedOrders = ref([]) // track accepted orders if needed
+
+// ========== Order Handling ==========
+async function acceptTask(orderId) {
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    alert("Unable to accept task. Not authenticated.")
+    return
   }
+
+  // Update order's driverId in the store
+  const updatedOrders = orderStore.orders.map(order => {
+    if (order.id === orderId && !acceptedOrders.value.includes(orderId)) {
+      acceptedOrders.value.push(orderId)
+      return { ...order, driverId: user.id }
+    }
+    return order
+  })
+
+  orderStore.setOrders(updatedOrders) // Add this method in your order store
+  alert(`Order ${orderId} accepted!`)
+}
+
+async function markAsDelivered(orderId) {
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    console.error('User authentication error')
+    return
+  }
+
+  const order = orderStore.orders.find(order => order.id === orderId)
+
+  if (!order) {
+    alert('Order not found.')
+    return
+  }
+
+  // Proceed if IDs match
+  orderStore.removeOrder(orderId)
+  orderStore.addCompletedOrder({ ...order }) // Clone to avoid shared reference
 }
 
 function goToCompletedDeliveries() {
   router.push({ name: 'CompletedDeliverypage' })
 }
+
+// ========== Orders Computation ==========
+const completedDeliveries = computed(() => orderStore.completedOrders)
+
+const inProgressOrders = computed(() =>
+  orderStore.orders.filter(order => acceptedOrders.value.includes(order.id))
+)
 
 // ========== Profile Settings ==========
 const showSettingsCard = ref(false)
@@ -350,8 +392,7 @@ function cancelLogout() {
                       </v-card-text>
 
                       <v-card-actions>
-                        <v-btn color="primary" text>Accept Task</v-btn>
-                        <v-btn color="success" text @click="markAsDelivered(order.id)">Mark as Delivered</v-btn>
+                        <v-btn color="green" @click="acceptTask(order.id)">Accept Task</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-col>
@@ -359,6 +400,44 @@ function cancelLogout() {
               </v-card>
             </v-col>
           </v-row>
+        </v-container>
+        <!-- In-Progress Orders -->
+        <v-container>
+          <v-card class="mb-4" outlined>
+            <v-card-title>In-Progress Orders</v-card-title>
+            <v-card-text>
+              <v-alert v-if="inProgressOrders.length === 0" type="info" border="start" color="blue lighten-4">
+                No in-progress orders yet.
+              </v-alert>
+              <v-list v-else>
+                <v-list-item v-for="order in inProgressOrders" :key="order.id">
+                  <v-list-item-content>
+                    <v-list-item-title>Order #{{ order.id }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ order.details || 'No details available.' }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-btn color="green" @click="markAsDelivered(order.id)">Mark as Delivered</v-btn>
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+          </v-card>
+
+          <!-- Completed Deliveries -->
+          <v-card outlined>
+            <v-card-title>Completed Deliveries</v-card-title>
+            <v-card-text>
+              <v-alert v-if="completedDeliveries.length === 0" type="info" border="start" color="blue lighten-4">
+                No completed deliveries yet.
+              </v-alert>
+              <v-list v-else>
+                <v-list-item v-for="order in completedDeliveries" :key="order.id">
+                  <v-list-item-content>
+                    <v-list-item-title>Order #{{ order.id }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ order.details || 'No details available.' }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+          </v-card>
         </v-container>
       </v-main>
     </v-layout>
