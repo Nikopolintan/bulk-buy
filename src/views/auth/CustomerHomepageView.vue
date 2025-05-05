@@ -133,6 +133,8 @@ const products = ref([
   }
 ])
 
+const showSearch = ref(false)
+
 // ===== Order State =====
 const orderedProducts = ref([])
 const deliveryFee = 50
@@ -209,7 +211,33 @@ function confirmBookOrder() {
           <!-- App Bar -->
           <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
             <v-spacer></v-spacer>
-            <v-btn icon><v-icon>mdi-bell</v-icon></v-btn>
+
+            <!-- Search Icon and Input Field (Positioned Next to Notification) -->
+            <v-btn icon @click="showSearch = !showSearch">
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+
+            <!-- Toggle Search Input -->
+            <transition name="fade">
+              <v-text-field
+                v-if="showSearch"
+                v-model="searchQuery"
+                placeholder="Search products"
+                hide-details
+                solo
+                flat
+                class="white rounded-pill ms-3"
+                style="max-width: 600px; height: 40px; background-color: white;"
+                @click:append="searchProduct"
+              />
+            </transition>
+
+            <!-- Notification Bell -->
+            <v-btn icon>
+              <v-icon>mdi-bell</v-icon>
+            </v-btn>
+
+            <!-- User Account -->
             <v-btn icon class="pe-3" @click.stop="drawer = !drawer">
               <v-icon>mdi-account</v-icon>
             </v-btn>
@@ -336,5 +364,12 @@ html, body, #app {
 .scrollable-main {
   height: 100vh;
   overflow-y: auto;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>
