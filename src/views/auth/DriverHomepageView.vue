@@ -78,7 +78,7 @@ async function markAsDelivered(orderId) {
 }
 
 function goToCompletedDeliveries() {
-  router.push({ name: 'CompletedDeliverypage' })
+  router.push({ name: 'completed-delivery' })
 }
 
 // ========== Orders Computation ==========

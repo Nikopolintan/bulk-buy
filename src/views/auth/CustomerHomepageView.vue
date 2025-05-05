@@ -47,11 +47,90 @@ onMounted(fetchUserInfo)
 
 // ===== Products =====
 const products = ref([
-  { name: 'Rice 25kg', description: 'Premium jasmine rice', price: 1250, quantity: 1 },
-  { name: 'Cooking Oil 1L', description: 'Vegetable oil', price: 150, quantity: 1 },
-  { name: 'Detergent Powder', description: '2kg stain-fighter', price: 230, quantity: 1 },
-  { name: 'Canned Tuna', description: '180g in oil', price: 45, quantity: 1 },
-  { name: 'Coffee 3-in-1', description: '20 sachets', price: 90, quantity: 1 }
+  {
+    name: 'Rice 25kg',
+    description: 'Premium jasmine rice',
+    price: 1250,
+    quantity: 1,
+    image: 'https://www.mashed.com/img/gallery/does-freezing-uncooked-rice-make-it-last-longer/l-intro-1682193675.jpg'
+  },
+  {
+    name: 'Cooking Oil 1L',
+    description: 'Vegetable oil',
+    price: 150,
+    quantity: 1,
+    image: 'http://imgusr.tradekey.com/p-138363-20060310082852/canola-cooking-oil.jpg'
+  },
+  {
+    name: 'Detergent Powder',
+    description: '2kg stain-fighter',
+    price: 230,
+    quantity: 1,
+    image: 'https://i5.walmartimages.com/asr/a4d6b0da-e216-4d7c-bc16-15ef18331e8c_1.62b72c57cbc3a3ca39e2471d64ef5614.jpeg'
+  },
+  {
+    name: 'Canned Sardines',
+    description: 'Mega sardines in tomato sauce',
+    price: 25,
+    quantity: 1,
+    image: 'https://i0.wp.com/megaprimefoods.com.ph/wp-content/uploads/2021/04/MEGA-Sardines-Product-Shot-1024x1024-1.jpg'
+  },
+  {
+    name: 'Instant Noodles',
+    description: 'Beef flavor, 5-pack',
+    price: 60,
+    quantity: 1,
+    image: 'https://marketech-apac.com/wp-content/uploads/2022/07/Lucky-Me.jpg'
+  },
+  {
+    name: 'Toilet Paper',
+    description: '12 rolls, 2-ply',
+    price: 180,
+    quantity: 1,
+    image: 'https://m.media-amazon.com/images/I/81qzv-uJeOL._AC_SL1500_.jpg'
+  },
+  {
+    name: 'Soya Sauce 1L',
+    description: 'Silver Swan soy sauce',
+    price: 45,
+    quantity: 1,
+    image: 'https://cf.shopee.ph/file/ea425e2df3b49121920a53bff0a9a61e'
+  },
+  {
+    name: 'Sugar 2kg',
+    description: 'Refined white sugar',
+    price: 110,
+    quantity: 1,
+    image: 'https://thumbs.dreamstime.com/b/sm-bonus-brown-sugar-manila-philippines-ph-june-188617887.jpg'
+  },
+  {
+    name: 'Salt 1kg',
+    description: 'Iodized cooking salt',
+    price: 25,
+    quantity: 1,
+    image: 'https://tse4.mm.bing.net/th?id=OIP.998U0oHZKEV9dx4_3-dSvgHaEK&pid=Api&P=0&h=180'
+  },
+  {
+    name: 'Coffee 3-in-1',
+    description: 'Nescafé Original, 10 sachets',
+    price: 85,
+    quantity: 1,
+    image: 'https://tse1.mm.bing.net/th?id=OIP.0w5y_ZepIm-KGxF2HUN3GgHaHa&pid=Api&P=0&h=180'
+  },
+  {
+    name: 'Milo 300g',
+    description: 'Energy drink powder',
+    price: 75,
+    quantity: 1,
+    image: 'https://www.nicepng.com/png/detail/392-3921091_nestle-milo-nestle-milo-philippines.png'
+  },
+  {
+    name: 'Loaf Bread',
+    description: 'Classic white bread',
+    price: 55,
+    quantity: 1,
+    image: 'https://pgmobile.puregold.com.ph/images/4806502720417.jpg'
+  }
 ])
 
 // ===== Order State =====
@@ -174,7 +253,7 @@ function confirmBookOrder() {
                 <v-row class="d-flex align-stretch" justify="start" no-gutters>
                   <v-col v-for="(product, index) in products" :key="index" cols="12" sm="6" md="4" lg="3" class="pa-2">
                     <v-card class="pa-3 h-100 d-flex flex-column justify-space-between" elevation="5">
-                      <div style="height: 100px; background-color: #f0f0f0"></div>
+                      <v-img :src="product.image" height="100" class="mb-2" cover />
                       <v-card-title class="text-h6">{{ product.name }}</v-card-title>
                       <v-card-subtitle>{{ product.description }}</v-card-subtitle>
                       <v-card-text>
