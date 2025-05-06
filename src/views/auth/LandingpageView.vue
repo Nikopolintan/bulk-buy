@@ -122,6 +122,10 @@ const scrollToAbout = () => {
           </v-col>
         </v-row>
       </v-container>
+                  <!-- Persistent Footer -->
+                  <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
+                  <span class="text-caption">© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span>
+              </v-footer>
     </v-main>
   </v-app>
 </template>
