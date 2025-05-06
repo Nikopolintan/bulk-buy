@@ -208,7 +208,7 @@ function confirmBookOrder() {
       <v-navigation-drawer v-model="drawer" location="right" temporary>
         <v-list-item class="text-center mt-2">
           <v-avatar>
-            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
+            <img src="https://tse2.mm.bing.net/th?id=OIP.sbRjMD2zaP12rWg1bR1PDAHaHa&pid=Api&P=0&h=180" alt="User Avatar" height="50px" width="50px" />
           </v-avatar>
           <v-list-item-content>
             <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>

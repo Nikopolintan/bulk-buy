@@ -205,7 +205,7 @@ function cancelLogout() {
       <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
         <v-list-item class="text-center mt-2">
           <v-avatar>
-            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User Avatar" />
+            <img src="https://tse2.mm.bing.net/th?id=OIP.sbRjMD2zaP12rWg1bR1PDAHaHa&pid=Api&P=0&h=180" alt="User Avatar" height="50px" width="50px" />
           </v-avatar>
           <v-list-item-content>
             <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
@@ -469,6 +469,10 @@ function cancelLogout() {
           </v-card>
         </v-container>
         </div>
+                    <!-- Persistent Footer -->
+                    <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
+                  <span class="text-caption">© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span>
+              </v-footer>
       </v-main>
     </v-layout>
   </v-card>
