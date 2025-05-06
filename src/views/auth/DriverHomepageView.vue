@@ -3,6 +3,17 @@ import { ref, computed, onMounted } from 'vue'
 import { useOrderStore } from '@/stores/orders'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase' // Adjust if your Supabase client path differs
+import baoBaoBg from '/images/bg-image.jpg'
+
+// ===== Background Styling =====
+const backgroundStyle = computed(() => ({
+  backgroundImage: `url(${baoBaoBg})`,
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
+  backgroundAttachment: 'fixed',
+  backgroundColor: 'rgba(0, 0, 255, 0.1)'
+}))
+
 
 const router = useRouter()
 const drawer = ref(false)
@@ -169,9 +180,17 @@ function logout() {
   showLogoutDialog.value = true
 }
 
-function confirmLogout() {
-  router.push('/login')
+async function confirmLogout() {
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    console.error('Logout failed:', error.message)
+    alert('Logout failed. Please try again.')
+    return
+  }
+
   showLogoutDialog.value = false
+  router.push('/login')
 }
 
 function cancelLogout() {
@@ -212,8 +231,18 @@ function cancelLogout() {
 
       <!-- Main Content -->
       <v-main>
-        <!-- App Bar -->
+                <!-- Animated GIF Centered at Top -->
+                <v-container class="top-gif-container" fluid>
+            <img src="/images/animation.gif" alt="Top Animation" class="top-gif" />
+          </v-container>
+        <div :style="backgroundStyle" class="background-blur-wrapper"></div>
+        <div class="content-wrapper">
+                    <!-- App Bar -->
         <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
+          <!-- Logo on the Left -->
+          <v-toolbar-title class="ps-4">
+            <img src="/images/BULKBUY logo.png" alt="Bulk Buy Logo" height="50" />
+          </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon size="medium" class="mx-5"><v-icon>mdi-bell</v-icon></v-btn>
           <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
@@ -439,7 +468,71 @@ function cancelLogout() {
             </v-card-text>
           </v-card>
         </v-container>
+        </div>
       </v-main>
     </v-layout>
   </v-card>
 </template>
+
+<style scoped>
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  scroll-behavior: smooth;
+}
+
+.v-application {
+  background: transparent !important;
+}
+
+.background-blur-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  padding-top: 70px;
+  padding-bottom: 32px;
+}
+
+.page-content {
+  padding-top: 16px;
+}
+
+.scrollable-main {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+.top-gif-container {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  background: transparent;
+}
+
+.top-gif {
+  max-width: 140px;
+  height: auto;
+  background: transparent;
+}
+</style>
