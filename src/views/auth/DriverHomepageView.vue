@@ -11,9 +11,8 @@ const backgroundStyle = computed(() => ({
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
   backgroundAttachment: 'fixed',
-  backgroundColor: 'rgba(0, 0, 255, 0.1)'
+  backgroundColor: 'rgba(0, 0, 255, 0.1)',
 }))
-
 
 const router = useRouter()
 const drawer = ref(false)
@@ -27,7 +26,10 @@ const phone = ref('')
 const address = ref('')
 
 async function fetchUserInfo() {
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
   if (error) {
     console.error('Error fetching user:', error.message)
     return
@@ -40,23 +42,59 @@ async function fetchUserInfo() {
   address.value = metadata?.address || 'N/A'
 }
 
+// Fetch all orders and their items for drivers
+async function fetchOrders() {
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('*, order_items(*, product:products(*))')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching orders:', error.message)
+    return
+  }
+
+  // Clear previous orders
+  orderStore.orders = []
+
+  // Map each order to include an 'items' array
+  orders.forEach((order) => {
+    const items = (order.order_items || []).map((item) => ({
+      id: item.product?.id,
+      name: item.product?.name,
+      description: item.product?.description,
+      image_url: item.product?.image_url,
+      price: item.price,
+      quantity: item.quantity,
+    }))
+    orderStore.addOrder({
+      ...order,
+      items,
+    })
+  })
+}
+
 onMounted(() => {
   fetchUserInfo()
+  fetchOrders()
 })
 
 const acceptedOrders = ref([]) // track accepted orders if needed
 
 // ========== Order Handling ==========
 async function acceptTask(orderId) {
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
   if (error || !user) {
-    alert("Unable to accept task. Not authenticated.")
+    alert('Unable to accept task. Not authenticated.')
     return
   }
 
   // Update order's driverId in the store
-  const updatedOrders = orderStore.orders.map(order => {
+  const updatedOrders = orderStore.orders.map((order) => {
     if (order.id === orderId && !acceptedOrders.value.includes(orderId)) {
       acceptedOrders.value.push(orderId)
       return { ...order, driverId: user.id }
@@ -69,14 +107,17 @@ async function acceptTask(orderId) {
 }
 
 async function markAsDelivered(orderId) {
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
   if (error || !user) {
     console.error('User authentication error')
     return
   }
 
-  const order = orderStore.orders.find(order => order.id === orderId)
+  const order = orderStore.orders.find((order) => order.id === orderId)
 
   if (!order) {
     alert('Order not found.')
@@ -96,7 +137,7 @@ function goToCompletedDeliveries() {
 const completedDeliveries = computed(() => orderStore.completedOrders)
 
 const inProgressOrders = computed(() =>
-  orderStore.orders.filter(order => acceptedOrders.value.includes(order.id))
+  orderStore.orders.filter((order) => acceptedOrders.value.includes(order.id)),
 )
 
 // ========== Profile Settings ==========
@@ -155,14 +196,14 @@ function saveAccountPrivacy() {
 // ========== Password Validation ==========
 const password = ref('')
 const passwordRules = [
-  v => !!v || 'Password is required',
-  v => v.length >= 6 || 'Password must be at least 6 characters',
+  (v) => !!v || 'Password is required',
+  (v) => v.length >= 6 || 'Password must be at least 6 characters',
 ]
 
 const passwordCon = ref('')
 const passwordConRules = [
-  v => !!v || 'Password confirmation is required',
-  v => v === password.value || 'Passwords do not match',
+  (v) => !!v || 'Password confirmation is required',
+  (v) => v === password.value || 'Passwords do not match',
 ]
 
 const showPassword1 = ref(false)
@@ -205,7 +246,12 @@ function cancelLogout() {
       <v-navigation-drawer v-model="drawer" location="right" temporary style="z-index: 2000">
         <v-list-item class="text-center mt-2">
           <v-avatar>
-            <img src="https://tse2.mm.bing.net/th?id=OIP.sbRjMD2zaP12rWg1bR1PDAHaHa&pid=Api&P=0&h=180" alt="User Avatar" height="50px" width="50px" />
+            <img
+              src="https://tse2.mm.bing.net/th?id=OIP.sbRjMD2zaP12rWg1bR1PDAHaHa&pid=Api&P=0&h=180"
+              alt="User Avatar"
+              height="50px"
+              width="50px"
+            />
           </v-avatar>
           <v-list-item-content>
             <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
@@ -215,9 +261,19 @@ function cancelLogout() {
         <v-divider></v-divider>
 
         <v-list nav>
-          <v-list-item><v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title></v-list-item>
-          <v-list-item><v-list-item-title><strong>Phone Number:</strong> {{ phone }}</v-list-item-title></v-list-item>
-          <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
+          <v-list-item
+            ><v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title></v-list-item
+          >
+          <v-list-item
+            ><v-list-item-title
+              ><strong>Phone Number:</strong> {{ phone }}</v-list-item-title
+            ></v-list-item
+          >
+          <v-list-item
+            ><v-list-item-title
+              ><strong>Address:</strong> {{ address }}</v-list-item-title
+            ></v-list-item
+          >
 
           <v-divider></v-divider>
           <v-list-item prepend-icon="mdi-cogs" @click="openSettings">
@@ -231,39 +287,37 @@ function cancelLogout() {
 
       <!-- Main Content -->
       <v-main>
-                <!-- Animated GIF Centered at Top -->
-                <v-container class="top-gif-container" fluid>
-            <img src="/images/animation.gif" alt="Top Animation" class="top-gif" />
-          </v-container>
+        <!-- Animated GIF Centered at Top -->
+        <v-container class="top-gif-container" fluid>
+          <img src="/images/animation.gif" alt="Top Animation" class="top-gif" />
+        </v-container>
         <div :style="backgroundStyle" class="background-blur-wrapper"></div>
         <div class="content-wrapper">
-                    <!-- App Bar -->
-        <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
-          <!-- Logo on the Left -->
-          <v-toolbar-title class="ps-4">
-            <img src="/images/BULKBUY logo.png" alt="Bulk Buy Logo" height="50" />
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn icon size="medium" class="mx-5"><v-icon>mdi-bell</v-icon></v-btn>
-          <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
-            <v-icon>mdi-account</v-icon>
-          </v-btn>
-        </v-app-bar>
+          <!-- App Bar -->
+          <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
+            <!-- Logo on the Left -->
+            <v-toolbar-title class="ps-4">
+              <img src="/images/BULKBUY logo.png" alt="Bulk Buy Logo" height="50" />
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon size="medium" class="mx-5"><v-icon>mdi-bell</v-icon></v-btn>
+            <v-btn icon size="medium" class="mx-5 pe-3" @click.stop="drawer = !drawer">
+              <v-icon>mdi-account</v-icon>
+            </v-btn>
+          </v-app-bar>
 
-        <!-- LOGOUT CONFIRMATION DIALOG -->
-        <v-dialog v-model="showLogoutDialog" persistent>
-              <v-card class="mx-auto">
-                <v-card-title class="text-center">
-                  Are you sure you want to log out?
-                </v-card-title>
-                <v-card-actions>
-                  <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
-                  <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+          <!-- LOGOUT CONFIRMATION DIALOG -->
+          <v-dialog v-model="showLogoutDialog" persistent>
+            <v-card class="mx-auto">
+              <v-card-title class="text-center"> Are you sure you want to log out? </v-card-title>
+              <v-card-actions>
+                <v-btn color="blue-lighten-1" text @click="cancelLogout">Cancel</v-btn>
+                <v-btn color="red" text @click="confirmLogout">Log Out</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
 
-                 <!-- SETTINGS -->
+          <!-- SETTINGS -->
           <v-dialog v-model="showSettingsCard" max-width="400" persistent>
             <v-card class="pa-4">
               <v-card-title>Settings</v-card-title>
@@ -296,22 +350,22 @@ function cancelLogout() {
               <v-card-text>
                 <v-text-field v-model="currentPassword" label="Current Password" type="password" />
                 <v-text-field
-                    v-model="password"
-                    :rules="passwordRules"
-                    :type="showPassword1 ? 'text' : 'password'"
-                    label="New Password"
-                    :append-inner-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
-                    @click:append-inner="togglePasswordVisibility1"
-                  />
+                  v-model="password"
+                  :rules="passwordRules"
+                  :type="showPassword1 ? 'text' : 'password'"
+                  label="New Password"
+                  :append-inner-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append-inner="togglePasswordVisibility1"
+                />
 
-                  <v-text-field
-                    v-model="passwordCon"
-                    :rules="passwordConRules"
-                    :type="showPassword2 ? 'text' : 'password'"
-                    label="Password Confirmation"
-                    :append-inner-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
-                    @click:append-inner="togglePasswordVisibility2"
-                  />
+                <v-text-field
+                  v-model="passwordCon"
+                  :rules="passwordConRules"
+                  :type="showPassword2 ? 'text' : 'password'"
+                  label="Password Confirmation"
+                  :append-inner-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append-inner="togglePasswordVisibility2"
+                />
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -323,36 +377,36 @@ function cancelLogout() {
 
           <!-- Notification Preferences Dialog -->
           <v-dialog v-model="showNotificationPreferencesDialog" max-width="500">
-              <v-card class="pa-4">
-                <v-card-title>Notification Preferences</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text>
-                  <v-switch
-                    v-model="emailNotifications"
-                    label="Email Notifications"
-                    color="blue"
-                    class="animated-switch"
-                  />
-                  <v-switch
-                    v-model="smsNotifications"
-                    label="SMS Notifications"
-                    color="blue"
-                    class="animated-switch"
-                  />
-                  <v-switch
-                    v-model="appNotifications"
-                    label="App Notifications"
-                    color="blue"
-                    class="animated-switch"
-                  />
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
-                  <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+            <v-card class="pa-4">
+              <v-card-title>Notification Preferences</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <v-switch
+                  v-model="emailNotifications"
+                  label="Email Notifications"
+                  color="blue"
+                  class="animated-switch"
+                />
+                <v-switch
+                  v-model="smsNotifications"
+                  label="SMS Notifications"
+                  color="blue"
+                  class="animated-switch"
+                />
+                <v-switch
+                  v-model="appNotifications"
+                  label="App Notifications"
+                  color="blue"
+                  class="animated-switch"
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text color="blue" @click="saveNotificationPreferences">Save</v-btn>
+                <v-btn text @click="showNotificationPreferencesDialog = false">Cancel</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
 
           <!-- Account Privacy Dialog -->
           <v-dialog v-model="showAccountPrivacyDialog" max-width="500">
@@ -373,113 +427,144 @@ function cancelLogout() {
             </v-card>
           </v-dialog>
 
-        <!-- Customer Orders -->
-        <v-container class="mt-6">
-          <v-row>
-            <v-col cols="12">
-              <v-card elevation="3" class="pa-4">
-                <v-card-title class="d-flex justify-space-between align-center">
-                  <span class="text-h6">Customer Orders</span>
-                  <v-btn color="blue" variant="tonal" @click="goToCompletedDeliveries" class="ml-auto" small>
-                    <v-icon start>mdi-check-circle-outline</v-icon>
-                    Completed Deliveries
-                  </v-btn>
-                </v-card-title>
+          <!-- Customer Orders -->
+          <v-container class="mt-6">
+            <v-row>
+              <v-col cols="12">
+                <v-card elevation="3" class="pa-4">
+                  <v-card-title class="d-flex justify-space-between align-center">
+                    <span class="text-h6">Customer Orders</span>
+                    <v-btn
+                      color="blue"
+                      variant="tonal"
+                      @click="goToCompletedDeliveries"
+                      class="ml-auto"
+                      small
+                    >
+                      <v-icon start>mdi-check-circle-outline</v-icon>
+                      Completed Deliveries
+                    </v-btn>
+                  </v-card-title>
 
-                <!-- Orders Loop -->
-                <v-row v-for="(order, index) in orders" :key="index" class="mb-4">
-                  <v-col cols="12">
-                    <v-card outlined>
-                      <v-card-title>
-                        <div>
-                          <small>{{ order.date }} {{ order.time }}</small>  <!-- show date and time -->
-                          <div><strong>Customer:</strong> {{ order.customer }}</div>
-                          <div class="text-caption grey--text">{{ order.address }}</div>
-                        </div>
-                      </v-card-title>
+                  <!-- Orders Loop -->
+                  <v-row v-for="(order, index) in orders" :key="index" class="mb-4">
+                    <v-col cols="12">
+                      <v-card outlined>
+                        <v-card-title>
+                          <div>
+                            <small>{{ order.date }} {{ order.time }}</small>
+                            <!-- show date and time -->
+                            <div><strong>Customer:</strong> {{ order.customer }}</div>
+                            <div class="text-caption grey--text">{{ order.address }}</div>
+                          </div>
+                        </v-card-title>
 
-                      <v-divider></v-divider>
+                        <v-divider></v-divider>
 
-                      <v-card-text>
-                        <!-- NEW: Order Description -->
-                        <div class="mb-4">
-                          <strong>Order Description:</strong> {{ order.description }}
-                        </div>
+                        <v-card-text>
+                          <!-- NEW: Order Description -->
+                          <div class="mb-4">
+                            <strong>Order Description:</strong> {{ order.description }}
+                          </div>
 
-                        <v-list dense>
-                          <v-list-item v-for="(item, i) in order.items" :key="i">
-                            <v-list-item-content>
-                              <v-list-item-title>
-                                {{ item.name }} - Qty: {{ item.quantity }} (₱{{ item.price * item.quantity }})
-                              </v-list-item-title>
-                            </v-list-item-content>
-                          </v-list-item>
-                        </v-list>
-                        <div class="mt-2 text-right font-weight-bold">
-                          Total: ₱{{ order.items.reduce((sum, item) => sum + item.price * item.quantity, 0) }}
-                        </div>
-                      </v-card-text>
+                          <v-list dense>
+                            <v-list-item v-for="(item, i) in order.items" :key="i">
+                              <v-list-item-content>
+                                <v-list-item-title>
+                                  {{ item.name }} - Qty: {{ item.quantity }} (₱{{
+                                    item.price * item.quantity
+                                  }})
+                                </v-list-item-title>
+                              </v-list-item-content>
+                            </v-list-item>
+                          </v-list>
+                          <div class="mt-2 text-right font-weight-bold">
+                            Total: ₱{{
+                              order.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+                            }}
+                          </div>
+                        </v-card-text>
 
-                      <v-card-actions>
-                        <v-btn color="green" @click="acceptTask(order.id)">Accept Task</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
-        <!-- In-Progress Orders -->
-        <v-container>
-          <v-card class="mb-4" outlined>
-            <v-card-title>In-Progress Orders</v-card-title>
-            <v-card-text>
-              <v-alert v-if="inProgressOrders.length === 0" type="info" border="start" color="blue lighten-4">
-                No in-progress orders yet.
-              </v-alert>
-              <v-list v-else>
-                <v-list-item v-for="order in inProgressOrders" :key="order.id">
-                  <v-list-item-content>
-                    <v-list-item-title>Order #{{ order.id }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ order.details || 'No details available.' }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-btn color="green" @click="markAsDelivered(order.id)">Mark as Delivered</v-btn>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
+                        <v-card-actions>
+                          <v-btn color="green" @click="acceptTask(order.id)">Accept Task</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+          <!-- In-Progress Orders -->
+          <v-container>
+            <v-card class="mb-4" outlined>
+              <v-card-title>In-Progress Orders</v-card-title>
+              <v-card-text>
+                <v-alert
+                  v-if="inProgressOrders.length === 0"
+                  type="info"
+                  border="start"
+                  color="blue lighten-4"
+                >
+                  No in-progress orders yet.
+                </v-alert>
+                <v-list v-else>
+                  <v-list-item v-for="order in inProgressOrders" :key="order.id">
+                    <v-list-item-content>
+                      <v-list-item-title>Order #{{ order.id }}</v-list-item-title>
+                      <v-list-item-subtitle>{{
+                        order.details || 'No details available.'
+                      }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-btn color="green" @click="markAsDelivered(order.id)"
+                      >Mark as Delivered</v-btn
+                    >
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
 
-          <!-- Completed Deliveries -->
-          <v-card outlined>
-            <v-card-title>Completed Deliveries</v-card-title>
-            <v-card-text>
-              <v-alert v-if="completedDeliveries.length === 0" type="info" border="start" color="blue lighten-4">
-                No completed deliveries yet.
-              </v-alert>
-              <v-list v-else>
-                <v-list-item v-for="order in completedDeliveries" :key="order.id">
-                  <v-list-item-content>
-                    <v-list-item-title>Order #{{ order.id }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ order.details || 'No details available.' }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
-        </v-container>
+            <!-- Completed Deliveries -->
+            <v-card outlined>
+              <v-card-title>Completed Deliveries</v-card-title>
+              <v-card-text>
+                <v-alert
+                  v-if="completedDeliveries.length === 0"
+                  type="info"
+                  border="start"
+                  color="blue lighten-4"
+                >
+                  No completed deliveries yet.
+                </v-alert>
+                <v-list v-else>
+                  <v-list-item v-for="order in completedDeliveries" :key="order.id">
+                    <v-list-item-content>
+                      <v-list-item-title>Order #{{ order.id }}</v-list-item-title>
+                      <v-list-item-subtitle>{{
+                        order.details || 'No details available.'
+                      }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </v-container>
         </div>
-                    <!-- Persistent Footer -->
-                    <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
-                  <span class="text-caption">© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span>
-              </v-footer>
+        <!-- Persistent Footer -->
+        <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
+          <span class="text-caption"
+            >© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span
+          >
+        </v-footer>
       </v-main>
     </v-layout>
   </v-card>
 </template>
 
 <style scoped>
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
   scroll-behavior: smooth;
@@ -514,10 +599,12 @@ html, body, #app {
   overflow-y: auto;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 

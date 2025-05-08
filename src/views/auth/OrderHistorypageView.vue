@@ -15,7 +15,7 @@ const backgroundStyle = computed(() => ({
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
   backgroundAttachment: 'fixed',
-  backgroundColor: 'rgba(0, 0, 255, 0.1)'
+  backgroundColor: 'rgba(0, 0, 255, 0.1)',
 }))
 
 // Navigate back
@@ -27,7 +27,7 @@ const goToCustomerMain = () => {
 async function fetchOrders() {
   const { data: orders, error } = await supabase
     .from('orders')
-    .select('*')
+    .select('*, order_items(*, product:products(*))')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -35,7 +35,25 @@ async function fetchOrders() {
     return
   }
 
-  orders.forEach(order => orderStore.addOrder(order))
+  // Clear previous orders
+  orderStore.orders = []
+
+  // Map each order to include an 'items' array
+  orders.forEach((order) => {
+    const items = (order.order_items || []).map((item) => ({
+      id: item.product?.id,
+      name: item.product?.name,
+      description: item.product?.description,
+      image_url: item.product?.image_url,
+      price: item.price,
+      quantity: item.quantity,
+      subtotal: item.subtotal,
+    }))
+    orderStore.addOrder({
+      ...order,
+      items,
+    })
+  })
 }
 
 onMounted(() => {
@@ -47,65 +65,69 @@ onMounted(() => {
   <v-card>
     <v-layout>
       <v-main>
-            <!-- Animated GIF Centered at Top -->
-            <v-container class="top-gif-container" fluid>
-            <img src="/images/animation.gif" alt="Top Animation" class="top-gif" />
-          </v-container>
+        <!-- Animated GIF Centered at Top -->
+        <v-container class="top-gif-container" fluid>
+          <img src="/images/animation.gif" alt="Top Animation" class="top-gif" />
+        </v-container>
         <div :style="backgroundStyle" class="background-blur-wrapper"></div>
         <div class="content-wrapper">
-                  <!-- Header -->
-        <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
-          <v-btn icon @click="goToCustomerMain">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
-          <v-toolbar-title>Order History</v-toolbar-title>
-          <v-spacer></v-spacer>
-        </v-app-bar>
+          <!-- Header -->
+          <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
+            <v-btn icon @click="goToCustomerMain">
+              <v-icon>mdi-arrow-left</v-icon>
+            </v-btn>
+            <v-toolbar-title>Order History</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-app-bar>
 
-        <!-- Order History Section -->
-        <v-container class="mt-6">
-          <v-row>
-            <v-col cols="12">
-              <v-card elevation="4">
-                <v-card-title class="text-h5">Order History</v-card-title>
-                <v-divider></v-divider>
+          <!-- Order History Section -->
+          <v-container class="mt-6">
+            <v-row>
+              <v-col cols="12">
+                <v-card elevation="4">
+                  <v-card-title class="text-h5">Order History</v-card-title>
+                  <v-divider></v-divider>
 
-                <v-card-text>
-                  <div v-if="orderStore.orders.length === 0" class="text-center grey--text">
-                    No orders found.
-                  </div>
+                  <v-card-text>
+                    <div v-if="orderStore.orders.length === 0" class="text-center grey--text">
+                      No orders found.
+                    </div>
 
-                  <v-expansion-panels v-else>
-                    <v-expansion-panel
-                      v-for="(order, index) in orderStore.orders"
-                      :key="order.id"
-                    >
-                      <v-expansion-panel-title>
-                        Order #{{ index + 1 }}
-                        <br>
-                        <small>{{ order.date }} {{ order.time }}</small>
-                      </v-expansion-panel-title>
+                    <v-expansion-panels v-else>
+                      <v-expansion-panel
+                        v-for="(order, index) in orderStore.orders"
+                        :key="order.id"
+                      >
+                        <v-expansion-panel-title>
+                          Order #{{ index + 1 }}
+                          <br />
+                          <small>{{ order.date }} {{ order.time }}</small>
+                        </v-expansion-panel-title>
 
-                      <v-expansion-panel-text>
+                        <v-expansion-panel-text>
                           <v-row class="px-4">
                             <v-col cols="12">
                               <div class="font-weight-bold">{{ order.customer }}</div>
 
                               <v-row v-for="(item, idx) in order.items" :key="idx" align="center">
                                 <v-col cols="6">{{ item.name }} - Qty: {{ item.quantity }}</v-col>
-                                <v-col cols="6" class="text-right">₱{{ item.price }}</v-col>
+                                <v-col cols="6" class="text-right"
+                                  >₱{{ (item.price * item.quantity).toLocaleString() }}</v-col
+                                >
                               </v-row>
 
                               <v-divider class="my-2" />
 
                               <v-row>
                                 <v-col cols="6">Delivery Fee:</v-col>
-                                <v-col cols="6" class="text-right">₱{{ order.deliveryFee }}</v-col>
+                                <v-col cols="6" class="text-right">₱{{ order.delivery_fee }}</v-col>
                               </v-row>
 
                               <v-row class="font-weight-bold">
                                 <v-col cols="6">Total:</v-col>
-                                <v-col cols="6" class="text-right text-blue-darken-2">₱{{ order.total }}</v-col>
+                                <v-col cols="6" class="text-right text-blue-darken-2"
+                                  >₱{{ order.total_price }}</v-col
+                                >
                               </v-row>
 
                               <v-row>
@@ -121,27 +143,29 @@ onMounted(() => {
                             </v-col>
                           </v-row>
                         </v-expansion-panel-text>
-
-                    </v-expansion-panel>
-                  </v-expansion-panels>
-
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
         </div>
-                    <!-- Persistent Footer -->
-                    <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
-                  <span class="text-caption">© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span>
-              </v-footer>
+        <!-- Persistent Footer -->
+        <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
+          <span class="text-caption"
+            >© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span
+          >
+        </v-footer>
       </v-main>
     </v-layout>
   </v-card>
 </template>
 
 <style scoped>
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
   scroll-behavior: smooth;
@@ -176,10 +200,12 @@ html, body, #app {
   overflow-y: auto;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 
