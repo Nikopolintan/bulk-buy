@@ -4,13 +4,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase'
 import baoBaoBg from '/images/bg-image.jpg'
-import { useOrderStore } from '@/stores/orders'
 import ProfileSettings from '@/components/layout/ProfileSettings.vue'
 import Logout from '@/components/layout/LogOut.vue'
 
 // ===== Setup =====
 const router = useRouter()
-const orderStore = useOrderStore()
 
 // ===== UI State =====
 const drawer = ref(false)
@@ -22,7 +20,7 @@ const backgroundStyle = computed(() => ({
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
   backgroundAttachment: 'fixed',
-  backgroundColor: 'rgba(0, 0, 255, 0.1)'
+  backgroundColor: 'rgba(0, 0, 255, 0.1)',
 }))
 
 // ===== User Info =====
@@ -46,132 +44,115 @@ async function fetchUserInfo() {
 onMounted(fetchUserInfo)
 
 // ===== Products =====
-const products = ref([
-  {
-    name: 'Rice 25kg',
-    description: 'Premium jasmine rice',
-    price: 1250,
-    quantity: 1,
-    image: 'https://www.mashed.com/img/gallery/does-freezing-uncooked-rice-make-it-last-longer/l-intro-1682193675.jpg',
-    category: 'Staples'
-  },
-  {
-    name: 'Cooking Oil 1L',
-    description: 'Vegetable oil',
-    price: 150,
-    quantity: 1,
-    image: 'http://imgusr.tradekey.com/p-138363-20060310082852/canola-cooking-oil.jpg',
-    category: 'Condiments'
-  },
-  {
-    name: 'Detergent Powder',
-    description: '2kg stain-fighter',
-    price: 230,
-    quantity: 1,
-    image: 'https://i5.walmartimages.com/asr/a4d6b0da-e216-4d7c-bc16-15ef18331e8c_1.62b72c57cbc3a3ca39e2471d64ef5614.jpeg',
-    category: 'Household'
-  },
-  {
-    name: 'Canned Sardines',
-    description: 'Mega sardines in tomato sauce',
-    price: 25,
-    quantity: 1,
-    image: 'https://i0.wp.com/megaprimefoods.com.ph/wp-content/uploads/2021/04/MEGA-Sardines-Product-Shot-1024x1024-1.jpg',
-    category: 'Canned Goods'
-  },
-  {
-    name: 'Instant Noodles',
-    description: 'Beef flavor, 5-pack',
-    price: 60,
-    quantity: 1,
-    image: 'https://marketech-apac.com/wp-content/uploads/2022/07/Lucky-Me.jpg',
-    category: 'Snacks'
-  },
-  {
-    name: 'Toilet Paper',
-    description: '12 rolls, 2-ply',
-    price: 180,
-    quantity: 1,
-    image: 'https://m.media-amazon.com/images/I/81qzv-uJeOL._AC_SL1500_.jpg',
-    category: 'Household'
-  },
-  {
-    name: 'Soya Sauce 1L',
-    description: 'Silver Swan soy sauce',
-    price: 45,
-    quantity: 1,
-    image: 'https://cf.shopee.ph/file/ea425e2df3b49121920a53bff0a9a61e',
-    category: 'Condiments'
-  },
-  {
-    name: 'Sugar 2kg',
-    description: 'Refined white sugar',
-    price: 110,
-    quantity: 1,
-    image: 'https://thumbs.dreamstime.com/b/sm-bonus-brown-sugar-manila-philippines-ph-june-188617887.jpg',
-    category: 'Staples'
-  },
-  {
-    name: 'Salt 1kg',
-    description: 'Iodized cooking salt',
-    price: 25,
-    quantity: 1,
-    image: 'https://tse4.mm.bing.net/th?id=OIP.998U0oHZKEV9dx4_3-dSvgHaEK&pid=Api&P=0&h=180',
-    category: 'Condiments'
-  },
-  {
-    name: 'Coffee 3-in-1',
-    description: 'Nescafé Original, 10 sachets',
-    price: 85,
-    quantity: 1,
-    image: 'https://tse1.mm.bing.net/th?id=OIP.0w5y_ZepIm-KGxF2HUN3GgHaHa&pid=Api&P=0&h=180',
-    category: 'Beverages'
-  },
-  {
-    name: 'Milo 300g',
-    description: 'Energy drink powder',
-    price: 75,
-    quantity: 1,
-    image: 'https://www.nicepng.com/png/detail/392-3921091_nestle-milo-nestle-milo-philippines.png',
-    category: 'Beverages'
-  },
-  {
-    name: 'Loaf Bread',
-    description: 'Classic white bread',
-    price: 55,
-    quantity: 1,
-    image: 'https://pgmobile.puregold.com.ph/images/4806502720417.jpg',
-    category: 'Bakery'
+const products = ref([])
+
+async function fetchProducts() {
+  const { data, error } = await supabase.from('products').select('*')
+  if (error) {
+    console.error('Error fetching products:', error)
+  } else {
+    products.value = data
   }
-])
+}
 
-const categories = computed(() => {
-  return [...new Set(products.value.map(product => product.category))]
+onMounted(() => {
+  fetchUserInfo()
+  fetchProducts()
 })
 
-const selectedCategory = ref('All')
+// ===== New Product State =====
+// const newProduct = ref({
+//   name: '',
+//   description: '',
+//   price: null,
+//   quantity: 1,
+//   image_url: null
+// })
 
-const filteredProducts = computed(() => {
-  if (selectedCategory.value === 'All') return products.value
-  return products.value.filter(p => p.category === selectedCategory.value)
-})
+// function handleFileChange(event) {
+//   const file = event?.target?.files?.[0] || event
+//   if (file) {
+//     newProduct.value.image_url = file
+//   }
+// }
 
-const showSearch = ref(false)
+// async function uploadProduct() {
+//   const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+//   if (sessionError || !sessionData.session) {
+//     alert('You must be logged in to upload products.')
+//     return
+//   }
+
+//   const product = newProduct.value
+
+//   if (!product.name || !product.description || !product.price || !product.image_url) {
+//     alert('Please fill all fields and upload an image.')
+//     return
+//   }
+
+//   // Upload image to Supabase Storage
+//   const file = product.image_url
+//   const fileExt = file.name.split('.').pop()
+//   const fileName = `${Date.now()}.${fileExt}`
+//   const filePath = `${fileName}`
+
+//   const { error: uploadError } = await supabase.storage
+//     .from('product-images')
+//     .upload(filePath, file)
+
+//   if (uploadError) {
+//     console.error('Image upload failed:', uploadError)
+//     alert('Image upload failed.')
+//     return
+//   }
+
+//   const { data: publicUrlData } = supabase
+//     .storage
+//     .from('product-images')
+//     .getPublicUrl(filePath)
+
+//   const imageUrl = publicUrlData.publicUrl
+
+//   const { error } = await supabase.from('products').insert([
+//     {
+//       name: product.name,
+//       description: product.description,
+//       price: product.price,
+//       quantity: product.quantity,
+//       image_url: imageUrl
+//     }
+//   ])
+
+//   if (error) {
+//     console.error('Upload error:', error)
+//     alert('Failed to upload product.')
+//   } else {
+//     alert('Product uploaded successfully!')
+//     newProduct.value = {
+//       name: '',
+//       description: '',
+//       price: null,
+//       quantity: 1,
+//       image_url: null
+//     }
+//     fetchProducts()
+//   }
+// }
 
 // ===== Order State =====
 const orderedProducts = ref([])
 const deliveryFee = 50
 
 const totalPrice = computed(() =>
-  orderedProducts.value.reduce((sum, item) => sum + item.price, 0)
+  orderedProducts.value.reduce((sum, item) => sum + item.price * item.quantity, 0),
 )
 
 function orderProduct(product) {
-  const existing = orderedProducts.value.find((p) => p.name === product.name)
+  const existing = orderedProducts.value.find((p) => p.id === product.id)
   if (!existing) {
     orderedProducts.value.push({
       ...product,
-      price: product.price * product.quantity
+      quantity: product.quantity || 1,
     })
   } else {
     alert(`${product.name} is already in your order list`)
@@ -182,23 +163,72 @@ function cancelOrder(name) {
   orderedProducts.value = orderedProducts.value.filter((p) => p.name !== name)
 }
 
-
 function bookOrder() {
   if (orderedProducts.value.length > 0) showReceiptDialog.value = true
 }
 
-function confirmBookOrder() {
-  orderStore.addOrder({
-    customer: fullName.value,
-    address: address.value,
-    items: [...orderedProducts.value],
-    deliveryFee,
-    total: totalPrice.value + deliveryFee
-  })
+async function confirmBookOrder() {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError || !sessionData.session) {
+    alert('You must be logged in to place an order.')
+    return
+  }
+  const user = sessionData.session.user
+  const customer_id = user.id
+
+  // Insert the order (get the new order id)
+  const { data: orderData, error: orderError } = await supabase
+    .from('orders')
+    .insert([
+      {
+        subtotal: totalPrice.value,
+        delivery_fee: deliveryFee,
+        total_price: totalPrice.value + deliveryFee,
+        customer_id,
+      },
+    ])
+    .select('id')
+    .single()
+
+  if (orderError || !orderData) {
+    alert('Failed to place order: ' + (orderError?.message || 'Unknown error'))
+    return
+  }
+  const order_id = orderData.id
+
+  // Insert each product as an order_item
+  for (const item of orderedProducts.value) {
+    const { error: itemError } = await supabase.from('order_items').insert([
+      {
+        order_id,
+        product_id: item.id,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.price * item.quantity,
+      },
+    ])
+    if (itemError) {
+      alert('Failed to add order item: ' + itemError.message)
+      return
+    }
+  }
+
   orderedProducts.value = []
   showReceiptDialog.value = false
   router.push('/OrderHistorypage')
 }
+
+const searchQuery = ref('')
+
+const filteredProducts = computed(() => {
+  if (!searchQuery.value.trim()) return products.value
+  const q = searchQuery.value.trim().toLowerCase()
+  return products.value.filter(
+    (p) =>
+      (p.name && p.name.toLowerCase().includes(q)) ||
+      (p.description && p.description.toLowerCase().includes(q)),
+  )
+})
 </script>
 
 <template>
@@ -208,7 +238,12 @@ function confirmBookOrder() {
       <v-navigation-drawer v-model="drawer" location="right" temporary>
         <v-list-item class="text-center mt-2">
           <v-avatar>
-            <img src="https://tse2.mm.bing.net/th?id=OIP.sbRjMD2zaP12rWg1bR1PDAHaHa&pid=Api&P=0&h=180" alt="User Avatar" height="50px" width="50px" />
+            <img
+              src="https://tse2.mm.bing.net/th?id=OIP.sbRjMD2zaP12rWg1bR1PDAHaHa&pid=Api&P=0&h=180"
+              alt="User Avatar"
+              height="50px"
+              width="50px"
+            />
           </v-avatar>
           <v-list-item-content>
             <v-list-item-title class="font-weight-bold">{{ fullName }}</v-list-item-title>
@@ -216,9 +251,17 @@ function confirmBookOrder() {
         </v-list-item>
         <v-divider></v-divider>
         <v-list nav>
-          <v-list-item><v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title></v-list-item>
-          <v-list-item><v-list-item-title><strong>Phone:</strong> {{ phone }}</v-list-item-title></v-list-item>
-          <v-list-item><v-list-item-title><strong>Address:</strong> {{ address }}</v-list-item-title></v-list-item>
+          <v-list-item
+            ><v-list-item-title><strong>Email:</strong> {{ email }}</v-list-item-title></v-list-item
+          >
+          <v-list-item
+            ><v-list-item-title><strong>Phone:</strong> {{ phone }}</v-list-item-title></v-list-item
+          >
+          <v-list-item
+            ><v-list-item-title
+              ><strong>Address:</strong> {{ address }}</v-list-item-title
+            ></v-list-item
+          >
           <v-divider></v-divider>
           <v-list-item prepend-icon="mdi-cart" @click="router.push('/orderhistorypage')">
             <v-list-item-title>My Orders</v-list-item-title>
@@ -230,71 +273,64 @@ function confirmBookOrder() {
 
       <v-main class="scrollable-main">
         <!-- Animated GIF Centered at Top -->
-          <v-container class="top-gif-container" fluid>
-            <img src="/images/animation.gif" alt="Top Animation" class="top-gif" />
-          </v-container>
+        <v-container class="top-gif-container" fluid>
+          <img src="/images/animation.gif" alt="Top Animation" class="top-gif" />
+        </v-container>
         <div :style="backgroundStyle" class="background-blur-wrapper"></div>
         <div class="content-wrapper">
-        <!-- App Bar -->
-        <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
-          <!-- Logo on the Left -->
-          <v-toolbar-title class="ps-4">
-            <img src="/images/BULKBUY logo.png" alt="Bulk Buy Logo" height="50" />
-          </v-toolbar-title>
+          <!-- App Bar -->
+          <v-app-bar color="light-blue-lighten-3" flat height="70" elevation="2" app>
+            <!-- Logo on the Left -->
+            <v-toolbar-title class="ps-4">
+              <img src="/images/BULKBUY logo.png" alt="Bulk Buy Logo" height="50" />
+            </v-toolbar-title>
 
-          <v-spacer></v-spacer>
+            <v-spacer></v-spacer>
 
-          <!-- Search Icon and Input Field (Positioned Next to Notification) -->
-          <v-btn icon @click="showSearch = !showSearch">
-            <v-icon>mdi-magnify</v-icon>
-          </v-btn>
-
-          <!-- Toggle Search Input -->
-          <transition name="fade">
+            <!-- Toggle Search Input -->
             <v-text-field
-              v-if="showSearch"
               v-model="searchQuery"
               placeholder="Search products"
-              hide-details
-              solo
-              flat
-              class="white rounded-pill ms-3"
-              style="max-width: 600px; height: 40px; background-color: white;"
-              @click:append="searchProduct"
+              variant="outlined"
+              density="compact"
+              append-inner-icon="mdi-magnify"
+              clearable
+              style="max-width: 600px; height: 40px; background-color: white"
             />
-          </transition>
 
-          <!-- Categories Dropdown Menu -->
-          <v-menu offset-y>
-            <template #activator="{ props }">
-              <v-btn icon v-bind="props">
-                <v-icon>mdi-view-list</v-icon>
-              </v-btn>
-            </template>
+            <!-- Categories Dropdown Menu -->
+            <v-menu offset-y>
+              <template #activator="{ props }">
+                <v-btn icon v-bind="props">
+                  <v-icon>mdi-view-list</v-icon>
+                </v-btn>
+              </template>
 
-            <v-list>
-              <v-list-item
-                v-for="category in ['All', ...categories]"
-                :key="category"
-                @click="selectedCategory = category"
-              >
-                <v-list-item-title :class="{ 'text-blue-darken-2': selectedCategory === category }">
-                  {{ category }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+              <v-list>
+                <v-list-item
+                  v-for="category in ['All', ...categories]"
+                  :key="category"
+                  @click="selectedCategory = category"
+                >
+                  <v-list-item-title
+                    :class="{ 'text-blue-darken-2': selectedCategory === category }"
+                  >
+                    {{ category }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
 
-          <!-- Notification Bell -->
-          <v-btn icon>
-            <v-icon>mdi-bell</v-icon>
-          </v-btn>
+            <!-- Notification Bell -->
+            <v-btn icon>
+              <v-icon>mdi-bell</v-icon>
+            </v-btn>
 
-          <!-- User Account -->
-          <v-btn icon class="pe-3" @click.stop="drawer = !drawer">
-            <v-icon>mdi-account</v-icon>
-          </v-btn>
-        </v-app-bar>
+            <!-- User Account -->
+            <v-btn icon class="pe-3" @click.stop="drawer = !drawer">
+              <v-icon>mdi-account</v-icon>
+            </v-btn>
+          </v-app-bar>
 
           <!-- Page Content -->
           <v-container fluid class="page-content">
@@ -302,9 +338,13 @@ function confirmBookOrder() {
               <!-- Order Cart -->
               <v-col cols="12" md="3">
                 <v-card elevation="3">
-                  <v-card-title class="text-h6 text-center bg-light-blue-lighten-4">My Orders</v-card-title>
+                  <v-card-title class="text-h6 text-center bg-light-blue-lighten-4"
+                    >My Orders</v-card-title
+                  >
                   <v-divider></v-divider>
-                  <div v-if="orderedProducts.length === 0" class="text-center pa-4 grey--text">No orders yet</div>
+                  <div v-if="orderedProducts.length === 0" class="text-center pa-4 grey--text">
+                    No orders yet
+                  </div>
                   <v-list dense>
                     <v-list-item v-for="(ordered, index) in orderedProducts" :key="index">
                       <v-row no-gutters align="center" class="w-100">
@@ -318,7 +358,7 @@ function confirmBookOrder() {
                           <div class="text-caption">Qty: {{ ordered.quantity }}</div>
                         </v-col>
                         <v-col cols="4" class="text-right">
-                          ₱{{ ordered.price }}
+                          ₱{{ (ordered.price * ordered.quantity).toLocaleString() }}
                         </v-col>
                       </v-row>
                     </v-list-item>
@@ -329,20 +369,66 @@ function confirmBookOrder() {
                 </v-card>
               </v-col>
 
+              <!-- <v-col cols="11" md="6">
+            <v-card class="pa-4" elevation="4">
+      <v-card-title>Upload New Product</v-card-title>
+      <v-card-text>
+        <v-form>
+          <v-text-field v-model="newProduct.name" label="Product Name" />
+          <v-text-field v-model="newProduct.description" label="Description" />
+          <v-text-field v-model="newProduct.price" label="Price" type="number" />
+          <v-text-field v-model="newProduct.quantity" label="Quantity" type="number" />
+
+          <v-file-input
+            label="Upload Image"
+            accept="image/*"
+            @change="handleFileChange"
+          />
+
+          <v-btn color="primary" @click="uploadProduct">Upload Product</v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+           </v-col> -->
+            </v-row>
+
+            <v-row>
               <!-- Product List -->
               <v-col cols="12" md="9">
                 <v-row class="d-flex align-stretch" justify="start" no-gutters>
-                  <v-col v-for="(product, index) in filteredProducts" :key="index" cols="12" sm="6" md="4" lg="3" class="pa-2">
-                    <v-card class="pa-3 h-100 d-flex flex-column justify-space-between" elevation="5">
-                      <v-img :src="product.image" height="100" class="mb-2" cover />
+                  <v-col
+                    v-for="(product, index) in filteredProducts"
+                    :key="index"
+                    cols="12"
+                    sm="6"
+                    md="4"
+                    lg="3"
+                    class="pa-2"
+                  >
+                    <v-card
+                      class="pa-3 h-100 d-flex flex-column justify-space-between"
+                      elevation="5"
+                    >
+                      <v-img :src="product.image_url" height="100px" contain></v-img>
+
                       <v-card-title class="text-h6">{{ product.name }}</v-card-title>
                       <v-card-subtitle>{{ product.description }}</v-card-subtitle>
                       <v-card-text>
                         <div><strong>Price:</strong> ₱{{ product.price }}</div>
-                        <v-text-field v-model="product.quantity" type="number" label="Qty" min="1" class="mt-2" dense hide-details />
+                        <v-text-field
+                          v-model="product.quantity"
+                          type="number"
+                          label="Qty"
+                          min="1"
+                          class="mt-2"
+                          dense
+                          hide-details
+                        />
                       </v-card-text>
                       <v-card-actions class="d-flex justify-center">
-                        <v-btn color="light-blue-lighten-1" @click="orderProduct(product)">Order</v-btn>
+                        <v-btn color="light-blue-lighten-1" @click="orderProduct(product)"
+                          >Order</v-btn
+                        >
                       </v-card-actions>
                     </v-card>
                   </v-col>
@@ -361,6 +447,14 @@ function confirmBookOrder() {
                     <v-list-item-content>
                       <v-list-item-title>{{ item.name }} (x{{ item.quantity }})</v-list-item-title>
                       <v-list-item-subtitle>₱{{ item.price.toFixed(2) }}</v-list-item-subtitle>
+                      <v-list-item-subtitle class="text-right"
+                        >₱{{
+                          (item.price * item.quantity).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        }}</v-list-item-subtitle
+                      >
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
@@ -368,7 +462,9 @@ function confirmBookOrder() {
                 <div class="text-right">
                   <p>Subtotal: ₱{{ totalPrice - deliveryFee }}</p>
                   <p>Delivery Fee: ₱{{ deliveryFee }}</p>
-                  <p><strong>Total: ₱{{ totalPrice }}</strong></p>
+                  <p>
+                    <strong>Total: ₱{{ totalPrice }}</strong>
+                  </p>
                 </div>
               </v-card-text>
               <v-card-actions>
@@ -378,17 +474,21 @@ function confirmBookOrder() {
             </v-card>
           </v-dialog>
         </div>
-            <!-- Persistent Footer -->
-              <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
-                  <span class="text-caption">© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span>
-              </v-footer>
+        <!-- Persistent Footer -->
+        <v-footer app color="blue-lighten-4" class="text-center pa-3 mt-8">
+          <span class="text-caption"
+            >© {{ new Date().getFullYear() }} BulkBuy. All rights reserved.</span
+          >
+        </v-footer>
       </v-main>
     </v-layout>
   </v-card>
 </template>
 
 <style scoped>
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
   scroll-behavior: smooth;
@@ -423,10 +523,12 @@ html, body, #app {
   overflow-y: auto;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 
